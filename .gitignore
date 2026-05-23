@@ -6,3 +6,4 @@ target/
 dependencies/
 *.iml
 .ai/
+runtime/temp/sessions.dat
