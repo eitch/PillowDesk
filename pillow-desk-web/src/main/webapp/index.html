@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillowDesk - Booking Management</title>
+    <style>
+        :root {
+            --primary-color: #748ffc;
+            --primary-hover: #5c7cfa;
+            --secondary-color: #adb5bd;
+            --secondary-hover: #868e96;
+            --background-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --text-light: #868e96;
+            --border-color: #e9ecef;
+            --success-color: #40c057;
+            --danger-color: #fa5252;
+            --danger-hover: #e03131;
+            --header-bg: #ffffff;
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background: var(--header-bg);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            letter-spacing: -0.05rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span { color: var(--text-color); }
+
+        .logo::before {
+            content: '🛋️';
+            font-size: 1.25rem;
+        }
+
+        .container {
+            padding: 2.5rem 1rem;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .hidden { display: none !important; }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2.5rem;
+            background: #eef2ff;
+            padding: 0.5rem;
+            border-radius: var(--radius-lg);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #6366f1;
+            border: none;
+            background: transparent;
+            font-size: 0.95rem;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            background: var(--card-bg);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:active { transform: translateY(1px); }
+
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 4px 12px rgba(116, 143, 252, 0.3); }
+
+        .btn-danger { background: #fff5f5; color: var(--danger-color); }
+        .btn-danger:hover { background: var(--danger-color); color: white; }
+
+        .btn-secondary { background: #f8f9fa; color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: #e9ecef; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 1rem; }
+        th {
+            text-align: left;
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05rem;
+        }
+        td { padding: 1.25rem 1rem; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #fbfcfe; }
+
+        /* Forms */
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: #495057; }
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background: #fdfdfd;
+            color: var(--text-color);
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(116, 143, 252, 0.15);
+            background: #fff;
+        }
+
+        .search-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+            align-items: end;
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+        }
+        .search-bar .form-group { margin-bottom: 0; }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 3rem;
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+        }
+        .modal-header { margin-bottom: 2.5rem; }
+        .modal-header h2 { margin: 0; font-size: 1.75rem; color: var(--text-color); font-weight: 800; }
+
+        .login-card {
+            max-width: 450px;
+            margin: 80px auto;
+            text-align: center;
+        }
+        .login-card h2 { margin-bottom: 2.5rem; font-size: 2rem; font-weight: 800; }
+
+        #user-info { display: flex; align-items: center; gap: 1.25rem; }
+        #username-display { font-weight: 700; color: var(--text-color); font-size: 0.95rem; }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-room { background: #edf2ff; color: #4456a0; }
+        .badge-success { background: #ebfbee; color: #2b8a3e; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">Pillow<span>Desk</span></div>
+    <div id="user-info" class="hidden">
+        <div style="text-align: right; line-height: 1.2;">
+            <div style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05rem;">Signed in as</div>
+            <span id="username-display"></span>
+        </div>
+        <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Login View -->
+    <div id="login-view" class="card login-card">
+        <div style="margin-bottom: 2rem;">
+            <div style="background: #eef2ff; width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--primary-color); font-size: 1.5rem;">
+                🏨
+            </div>
+            <h2 style="margin: 0; font-size: 1.75rem;">Welcome Back</h2>
+            <p style="color: var(--text-light); margin-top: 0.5rem;">Please sign in to manage your bookings</p>
+        </div>
+        <div class="form-group" style="text-align: left;">
+            <label for="username">Username</label>
+            <input type="text" id="username" value="admin" placeholder="Enter your username">
+        </div>
+        <div class="form-group" style="text-align: left;">
+            <label for="password">Password</label>
+            <input type="password" id="password" value="admin" placeholder="Enter your password">
+        </div>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="login()">Sign In</button>
+        <div id="login-error" style="color: var(--danger-color); margin-top: 1.5rem; font-size: 0.9rem; font-weight: 600;"></div>
+    </div>
+
+    <!-- Main View -->
+    <div id="main-view" class="hidden">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('stays-tab', this)">Stays</button>
+            <button class="tab" onclick="showTab('monthly-tab', this)">Monthly Summary</button>
+            <button class="tab" onclick="showTab('yearly-tab', this)">Yearly Summary</button>
+        </div>
+
+        <!-- Stays Tab -->
+        <div id="stays-tab" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2 style="margin:0">Manage Stays</h2>
+                    <button class="btn btn-primary" onclick="openAddModal()">+ Add New Stay</button>
+                </div>
+                
+                <div class="search-bar">
+                    <div class="form-group">
+                        <label>Guest Name</label>
+                        <input type="text" id="search-name" placeholder="Filter by name...">
+                    </div>
+                    <div class="form-group">
+                        <label>From</label>
+                        <input type="date" id="search-from">
+                    </div>
+                    <div class="form-group">
+                        <label>To</label>
+                        <input type="date" id="search-to">
+                    </div>
+                    <button class="btn btn-primary" onclick="loadStays()">Apply Filters</button>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table id="stays-table">
+                        <thead>
+                            <tr>
+                                <th>Guest Name</th>
+                                <th>Booking ID</th>
+                                <th>Check-In</th>
+                                <th>Check-Out</th>
+                                <th>Room</th>
+                                <th>Total (CHF)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stays-body">
+                            <!-- Loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Summary Tab -->
+        <div id="monthly-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>Monthly Reporting</h2>
+                <div class="search-bar">
+                    <div class="form-group">
+                        <label>Year</label>
+                        <input type="number" id="summary-year" value="2024">
+                    </div>
+                    <div class="form-group">
+                        <label>Month</label>
+                        <select id="summary-month">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6" selected>June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="loadSummary()">Generate Report</button>
+                </div>
+                <div id="summary-result" style="overflow-x: auto;">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Yearly Summary Tab -->
+        <div id="yearly-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>Yearly Performance</h2>
+                <div class="search-bar">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Year</label>
+                        <input type="number" id="summary-year-only" value="2024">
+                    </div>
+                    <button class="btn btn-primary" onclick="loadYearlySummary()">Generate Overview</button>
+                </div>
+                <div id="yearly-summary-result" style="overflow-x: auto;">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div id="stay-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">Add Stay</h2>
+        </div>
+        <input type="hidden" id="stay-id">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="grid-column: span 2;">
+                <label>Guest Name</label>
+                <input type="text" id="stay-guestName" placeholder="Full name">
+            </div>
+            <div class="form-group">
+                <label>Booking ID</label>
+                <input type="text" id="stay-bookingId" placeholder="ID from platform">
+            </div>
+            <div class="form-group">
+                <label>Room</label>
+                <select id="stay-room"></select>
+            </div>
+            <div class="form-group">
+                <label>Check-In</label>
+                <input type="date" id="stay-checkIn">
+            </div>
+            <div class="form-group">
+                <label>Check-Out</label>
+                <input type="date" id="stay-checkOut">
+            </div>
+            <div class="form-group">
+                <label>Adults</label>
+                <input type="number" id="stay-adults" value="2">
+            </div>
+            <div class="form-group">
+                <label>Children</label>
+                <input type="number" id="stay-children" value="0">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label>Rate</label>
+                <select id="stay-rate"></select>
+            </div>
+        </div>
+        <div style="text-align: right; margin-top: 3rem; display: flex; justify-content: flex-end; gap: 1rem;">
+            <button class="btn btn-secondary" style="min-width: 120px;" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" style="min-width: 120px;" onclick="saveStay()">Save Booking</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'rest';
+    let authToken = localStorage.getItem('authToken');
+
+    window.onload = () => {
+        const now = new Date();
+        document.getElementById('summary-year').value = now.getFullYear();
+        document.getElementById('summary-year-only').value = now.getFullYear();
+        document.getElementById('summary-month').value = now.getMonth() + 1;
+
+        if (authToken) {
+            showMainView();
+        } else {
+            showLoginView();
+        }
+    };
+
+    function showTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(c => {
+            c.classList.add('hidden');
+            c.classList.remove('fade-in');
+        });
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        
+        const target = document.getElementById(tabId);
+        target.classList.remove('hidden');
+        target.classList.add('fade-in');
+        if (btn) btn.classList.add('active');
+
+        if (tabId === 'stays-tab') loadStays();
+    }
+
+    function showLoginView() {
+        document.getElementById('login-view').classList.remove('hidden');
+        document.getElementById('login-view').classList.add('fade-in');
+        document.getElementById('main-view').classList.add('hidden');
+        document.getElementById('user-info').classList.add('hidden');
+    }
+
+    function showMainView() {
+        document.getElementById('login-view').classList.add('hidden');
+        document.getElementById('main-view').classList.remove('hidden');
+        document.getElementById('main-view').classList.add('fade-in');
+        document.getElementById('user-info').classList.remove('hidden');
+        document.getElementById('username-display').innerText = localStorage.getItem('username');
+        loadStays();
+        loadRoomsAndRates();
+    }
+
+    async function login() {
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        const errorDiv = document.getElementById('login-error');
+        errorDiv.innerText = '';
+
+        try {
+            const response = await fetch(`${API_BASE}/strolch/authentication`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: user,
+                    password: btoa(pass)
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                authToken = data.authToken;
+                localStorage.setItem('authToken', authToken);
+                localStorage.setItem('username', user);
+                showMainView();
+            } else {
+                errorDiv.innerText = 'Authentication failed. Please check your credentials.';
+            }
+        } catch (e) {
+            errorDiv.innerText = 'Unable to connect to server.';
+            console.error(e);
+        }
+    }
+
+    async function loadRoomsAndRates() {
+        try {
+            const roomResp = await fetch(`${API_BASE}/pillowdesk/rooms`, {
+                headers: { 'Authorization': authToken }
+            });
+            const rateResp = await fetch(`${API_BASE}/pillowdesk/rates`, {
+                headers: { 'Authorization': authToken }
+            });
+
+            if (roomResp.ok && rateResp.ok) {
+                const rooms = await roomResp.json();
+                const rates = await rateResp.json();
+
+                populateSelect('stay-room', rooms.data);
+                populateSelect('stay-rate', rates.data);
+            }
+        } catch (e) {
+            console.error('Failed to load rooms/rates', e);
+        }
+    }
+
+    function populateSelect(id, elements) {
+        const select = document.getElementById(id);
+        const currentValue = select.value;
+        select.innerHTML = '';
+        elements.forEach(el => {
+            const opt = document.createElement('option');
+            opt.value = el.id;
+            opt.innerText = el.name;
+            select.appendChild(opt);
+        });
+        if (currentValue) select.value = currentValue;
+    }
+
+    function logout() {
+        authToken = null;
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('username');
+        showLoginView();
+    }
+
+    async function loadStays() {
+        const name = document.getElementById('search-name').value;
+        const from = document.getElementById('search-from').value;
+        const to = document.getElementById('search-to').value;
+
+        let url = `${API_BASE}/pillowdesk/stays?`;
+        if (name) url += `name=${encodeURIComponent(name)}&`;
+        if (from) url += `from=${from}&`;
+        if (to) url += `to=${to}&`;
+
+        try {
+            const response = await fetch(url, {
+                headers: { 'Authorization': authToken }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                renderStays(result.data);
+            } else if (response.status === 401) {
+                logout();
+            }
+        } catch (e) {
+            console.error('Failed to load stays', e);
+        }
+    }
+
+    function renderStays(stays) {
+        const tbody = document.getElementById('stays-body');
+        tbody.innerHTML = '';
+        stays.forEach(stay => {
+            const tr = document.createElement('tr');
+            
+            const params = {};
+            if (stay.parameterBags) {
+                Object.values(stay.parameterBags).forEach(bag => {
+                    if (bag.parameters) {
+                        Object.values(bag.parameters).forEach(p => params[p.id] = p.value);
+                    }
+                });
+            }
+
+            tr.innerHTML = `
+                <td><div style="font-weight:700; color:var(--text-color)">${params.guestName || '-'}</div></td>
+                <td style="color:var(--text-light); font-size:0.8rem; font-family:monospace">${params.bookingId || '-'}</td>
+                <td>${params.checkIn ? params.checkIn.substring(0, 10) : '-'}</td>
+                <td>${params.checkOut ? params.checkOut.substring(0, 10) : '-'}</td>
+                <td><span class="badge badge-room">${params.room || '-'}</span></td>
+                <td style="font-weight:700">CHF ${params.totalRevenue ? Number(params.totalRevenue).toFixed(2) : '0.00'}</td>
+                <td class="actions">
+                    <div style="display:flex; gap:0.5rem">
+                        <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="openEditModal('${stay.id}')">Edit</button>
+                        <button class="btn btn-danger" style="padding: 8px 16px; font-size: 0.85rem;" onclick="deleteStay('${stay.id}')">Delete</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function openEditModal(id) {
+        try {
+            const response = await fetch(`${API_BASE}/pillowdesk/stays/${id}`, {
+                headers: { 'Authorization': authToken }
+            });
+            if (response.ok) {
+                const result = await response.json();
+                const stay = result.data;
+                const params = {};
+                if (stay.parameterBags) {
+                    Object.values(stay.parameterBags).forEach(bag => {
+                        if (bag.parameters) {
+                            Object.values(bag.parameters).forEach(p => params[p.id] = p.value);
+                        }
+                    });
+                }
+
+                document.getElementById('modal-title').innerText = 'Edit Stay';
+                document.getElementById('stay-id').value = stay.id;
+                document.getElementById('stay-guestName').value = params.guestName || '';
+                document.getElementById('stay-bookingId').value = params.bookingId || '';
+                document.getElementById('stay-checkIn').value = params.checkIn ? params.checkIn.substring(0, 10) : '';
+                document.getElementById('stay-checkOut').value = params.checkOut ? params.checkOut.substring(0, 10) : '';
+                document.getElementById('stay-adults').value = params.adults || 2;
+                document.getElementById('stay-children').value = params.children || 0;
+                document.getElementById('stay-room').value = params.room || '';
+                document.getElementById('stay-rate').value = params.rate || '';
+                
+                document.getElementById('stay-modal').classList.remove('hidden');
+            }
+        } catch (e) {
+            console.error('Failed to load stay for edit', e);
+        }
+    }
+
+    function openAddModal() {
+        document.getElementById('modal-title').innerText = 'New Stay';
+        document.getElementById('stay-id').value = '';
+        document.getElementById('stay-guestName').value = '';
+        document.getElementById('stay-bookingId').value = '';
+        document.getElementById('stay-checkIn').value = '';
+        document.getElementById('stay-checkOut').value = '';
+        document.getElementById('stay-adults').value = 2;
+        document.getElementById('stay-children').value = 0;
+        document.getElementById('stay-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('stay-modal').classList.add('hidden');
+    }
+
+    async function saveStay() {
+        const id = document.getElementById('stay-id').value;
+        const guestName = document.getElementById('stay-guestName').value;
+        const bookingId = document.getElementById('stay-bookingId').value;
+        const checkIn = document.getElementById('stay-checkIn').value;
+        const checkOut = document.getElementById('stay-checkOut').value;
+        const adults = document.getElementById('stay-adults').value;
+        const children = document.getElementById('stay-children').value;
+        const room = document.getElementById('stay-room').value;
+        const rate = document.getElementById('stay-rate').value;
+
+        if (!guestName || !checkIn || !checkOut) {
+            alert('Please fill in required fields (Name, Check-In, Check-Out)');
+            return;
+        }
+
+        const stay = {
+            id: id || 'stay_' + Date.now(),
+            name: guestName,
+            type: 'Stay',
+            objectType: 'Order',
+            date: new Date().toISOString(),
+            parameterBags: {
+                parameters: {
+                    id: 'parameters',
+                    name: 'Parameters',
+                    type: 'Parameters',
+                    parameters: {
+                        guestName: { id: 'guestName', name: 'Guest Name', type: 'String', value: guestName },
+                        bookingId: { id: 'bookingId', name: 'Booking ID', type: 'String', value: bookingId },
+                        checkIn: { id: 'checkIn', name: 'Check-In', type: 'Date', value: checkIn + 'T00:00:00Z' },
+                        checkOut: { id: 'checkOut', name: 'Check-Out', type: 'Date', value: checkOut + 'T00:00:00Z' },
+                        adults: { id: 'adults', name: 'Adults', type: 'Integer', value: parseInt(adults) },
+                        children: { id: 'children', name: 'Children', type: 'Integer', value: parseInt(children) }
+                    }
+                },
+                relations: {
+                    id: 'relations',
+                    name: 'Relations',
+                    type: 'Relations',
+                    parameters: {
+                        room: { id: 'room', name: 'Room', type: 'String', value: room, interpretation: 'Resource-Ref', uom: 'Room' },
+                        rate: { id: 'rate', name: 'Rate', type: 'String', value: rate, interpretation: 'Resource-Ref', uom: 'Rate' }
+                    }
+                }
+            }
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `${API_BASE}/pillowdesk/stays/${id}` : `${API_BASE}/pillowdesk/stays`;
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 
+                    'Authorization': authToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(stay)
+            });
+
+            if (response.ok) {
+                closeModal();
+                loadStays();
+            } else {
+                alert('Failed to save stay');
+            }
+        } catch (e) {
+            console.error('Error saving stay', e);
+        }
+    }
+
+    async function deleteStay(id) {
+        if (!confirm('Are you sure you want to delete this stay?')) return;
+
+        try {
+            const response = await fetch(`${API_BASE}/pillowdesk/stays/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': authToken }
+            });
+
+            if (response.ok) {
+                loadStays();
+            } else {
+                alert('Failed to delete stay');
+            }
+        } catch (e) {
+            console.error('Error deleting stay', e);
+        }
+    }
+
+    async function loadSummary() {
+        const year = document.getElementById('summary-year').value;
+        const month = document.getElementById('summary-month').value;
+
+        try {
+            const response = await fetch(`${API_BASE}/pillowdesk/summaries/month?year=${year}&month=${month}`, {
+                headers: { 'Authorization': authToken }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                renderSummary(result.data);
+            }
+        } catch (e) {
+            console.error('Failed to load summary', e);
+        }
+    }
+
+    function renderSummary(data) {
+        const div = document.getElementById('summary-result');
+        if (!data || data.length === 0) {
+            div.innerHTML = '<div style="padding:3rem; text-align:center; color:var(--text-light); font-weight:600">No data available for this period.</div>';
+            return;
+        }
+
+        let html = '<table><thead><tr><th>Date</th><th>Room</th><th>Revenue (Net)</th><th>Tourist Tax</th></tr></thead><tbody>';
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td><div style="font-weight:600">${item.date.substring(0, 10)}</div></td>
+                    <td><span class="badge badge-room">${item.room}</span></td>
+                    <td style="font-weight:700; color:var(--primary-color)">CHF ${item.netRevenue.toFixed(2)}</td>
+                    <td style="color:var(--text-light)">CHF ${item.touristTax.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+        html += '</tbody></table>';
+        div.innerHTML = html;
+    }
+    async function loadYearlySummary() {
+        const year = document.getElementById('summary-year-only').value;
+
+        try {
+            const response = await fetch(`${API_BASE}/pillowdesk/summaries/year?year=${year}`, {
+                headers: { 'Authorization': authToken }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                renderYearlySummary(result.data);
+            }
+        } catch (e) {
+            console.error('Failed to load yearly summary', e);
+        }
+    }
+
+    function renderYearlySummary(data) {
+        const div = document.getElementById('yearly-summary-result');
+        if (!data || data.length === 0) {
+            div.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-light)">No data available for this year.</div>';
+            return;
+        }
+
+        let html = '<table><thead><tr><th>Month</th><th>Revenue (Net)</th><th>Tourist Tax</th><th>Occupancy (%)</th></tr></thead><tbody>';
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td><div style="font-weight:700; color:var(--text-color)">${item.month}</div></td>
+                    <td style="font-weight:700">CHF ${item.netRevenue.toFixed(2)}</td>
+                    <td style="color:var(--text-light)">CHF ${item.touristTax.toFixed(2)}</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:12px">
+                            <div style="flex:1; background:#f1f3f5; height:10px; border-radius:5px; overflow:hidden">
+                                <div style="background:var(--primary-color); height:100%; width:${Math.min(item.occupancy * 100, 100)}%; border-radius:5px"></div>
+                            </div>
+                            <span style="font-size:0.85rem; font-weight:700; min-width:50px">${(item.occupancy * 100).toFixed(1)}%</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        html += '</tbody></table>';
+        div.innerHTML = html;
+    }
+</script>
+
+</body>
+</html>

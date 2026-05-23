@@ -1,0 +1,84 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ch.atexxi.pillowdesk</groupId>
+        <artifactId>PillowDesk</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pillow-desk-web</artifactId>
+    <packaging>war</packaging>
+    <name>PillowDesk Web</name>
+
+    <properties>
+        <customer>NOT-SET</customer>
+        <environment>NOT-SET</environment>
+        <strolch.env>${environment}.${customer}</strolch.env>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>ch.atexxi.pillowdesk</groupId>
+            <artifactId>pillow-desk-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>li.strolch</groupId>
+            <artifactId>strolch-web-rest</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!--        <finalName>${warFinalName}</finalName>-->
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/*.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <webResources>
+                        <resource>
+                            <directory>src/env/${customer}/${environment}</directory>
+                            <filtering>true</filtering>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+
+        <!-- for dev: always enable strolch environment "dev" -->
+        <profile>
+            <id>dev.local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <customer>local</customer>
+                <environment>dev</environment>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>
