@@ -53,4 +53,6 @@ For development, the project is configured with a local development profile that
 
 ## 📄 License
 
-Copyright © 2026 eitch
+PillowDesk is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+
+Copyright © 2026 eitch - Robert von Burg
