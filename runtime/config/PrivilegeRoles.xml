@@ -17,7 +17,7 @@
             <Allow>service.ch.eitchnet.pillowdesk.core.RemoveStayService</Allow>
         </Privilege>
         <Privilege name="li.strolch.search.StrolchSearch" policy="DefaultPrivilege">
-            <Allow>search.ch.eitchnet.pillowdesk.core.StaySearch</Allow>
+            <Allow>ch.eitchnet.pillowdesk.core.search.StaySearch</Allow>
         </Privilege>
     </Role>
 

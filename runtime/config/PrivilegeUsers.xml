@@ -8,6 +8,9 @@
         <Roles>
             <Role>Administrator</Role>
         </Roles>
+        <Properties>
+            <Property name="realm" value="PillowDesk"/>
+        </Properties>
     </User>
     <User userId="agent" username="agent">
         <Firstname>Strolch Agent</Firstname>
