@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StrolchModel xmlns="https://strolch.li/schema/StrolchModel.xsd">
+
+    <IncludeFile file="../../../../runtime/data/Model.xml"/>
+
+</StrolchModel>
