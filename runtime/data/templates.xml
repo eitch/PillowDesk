@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StrolchModel xmlns="https://strolch.li/schema/StrolchModel.xsd">
+
+    <!-- Templates -->
+    <Resource Id="Room" Name="Room Template" Type="Template">
+        <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
+            <Parameter Id="roomNumber" Name="Room Number" Type="String" Value=""/>
+            <Parameter Id="capacity" Name="Capacity" Type="Integer" Value="0"/>
+        </ParameterBag>
+    </Resource>
+
+    <Resource Id="Rate" Name="Rate Template" Type="Template">
+        <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
+            <Parameter Id="basePrice" Name="Base Price" Type="Float" Value="0.0"/>
+            <Parameter Id="isAirBnb" Name="Is AirBnb" Type="Boolean" Value="false"/>
+            <Parameter Id="serviceFee" Name="Service Fee" Type="Float" Value="0.0"/>
+            <Parameter Id="discount" Name="Discount" Type="Float" Value="0.0"/>
+        </ParameterBag>
+    </Resource>
+
+    <Order Id="Stay" Name="Stay Template" Type="Template">
+        <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
+            <Parameter Id="checkIn" Name="Check-In Date" Type="Date" Value="1970-01-01T00:00:00.000+01:00"/>
+            <Parameter Id="checkOut" Name="Check-Out Date" Type="Date" Value="1970-01-01T00:00:00.000+01:00"/>
+            <Parameter Id="guestName" Name="Guest Name" Type="String" Value=""/>
+            <Parameter Id="adults" Name="Adults" Type="Integer" Value="0"/>
+            <Parameter Id="children" Name="Children" Type="Integer" Value="0"/>
+            <Parameter Id="bookingId" Name="Booking ID" Type="String" Value=""/>
+            <Parameter Id="isAirBnb" Name="Is AirBnb" Type="Boolean" Value="false"/>
+        </ParameterBag>
+        <ParameterBag Id="relations" Name="Relations" Type="Relations">
+            <Parameter Id="room" Name="Room" Type="String" Interpretation="Resource-Ref" Uom="Room" Value=""/>
+            <Parameter Id="rate" Name="Rate" Type="String" Interpretation="Resource-Ref" Uom="Rate" Value=""/>
+        </ParameterBag>
+    </Order>
+
+</StrolchModel>

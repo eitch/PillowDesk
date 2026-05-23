@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StrolchModel xmlns="https://strolch.li/schema/StrolchModel.xsd">
+
+    <IncludeFile file="templates.xml"/>
+
+    <!-- Rates -->
+    <Resource Id="rate_standard" Name="Standard Rate" Type="Rate">
+        <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
+            <Parameter Id="basePrice" Name="Base Price" Type="Float" Value="50.0"/>
+            <Parameter Id="isAirBnb" Name="Is AirBnb" Type="Boolean" Value="false"/>
+            <Parameter Id="serviceFee" Name="Service Fee" Type="Float" Value="0.0"/>
+            <Parameter Id="discount" Name="Discount" Type="Float" Value="0.0"/>
+        </ParameterBag>
+    </Resource>
+
+    <Resource Id="rate_airbnb" Name="AirBnb Rate" Type="Rate">
+        <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
+            <Parameter Id="basePrice" Name="Base Price" Type="Float" Value="57.0"/>
+            <Parameter Id="isAirBnb" Name="Is AirBnb" Type="Boolean" Value="true"/>
+            <Parameter Id="serviceFee" Name="Service Fee" Type="Float" Value="0.03"/>
+            <Parameter Id="discount" Name="Discount" Type="Float" Value="0.10"/>
+        </ParameterBag>
+    </Resource>
+
+    <!-- Rooms -->
+    <Resource Id="room_1" Name="Room 1" Type="Room">
+        <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
+            <Parameter Id="roomNumber" Name="Room Number" Type="String" Value="1"/>
+            <Parameter Id="capacity" Name="Capacity" Type="Integer" Value="2"/>
+        </ParameterBag>
+    </Resource>
+
+</StrolchModel>
