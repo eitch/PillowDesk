@@ -29,8 +29,9 @@ public class SummaryService {
 	public record DailySummary(LocalDate date, String room, double netRevenue, double touristTax) {
 	}
 
-	public record YearlySummary(int year, long bookingsCount, long totalNights, double accommodationGross,
-	                            double touristTax, double totalGross, long airbnbBookings, long directBookings) {
+	public record YearlySummary(int year, long bookingsCount, long totalNights, double occupancy,
+	                            double accommodationGross, double touristTax, double totalGross, long airbnbBookings,
+	                            long directBookings) {
 	}
 
 	public List<YearlySummary> getYearlySummaries(StrolchTransaction tx, int fromYear, int toYear) {
@@ -52,10 +53,14 @@ public class SummaryService {
 			data.directBookings += s.directBookings();
 		}
 
+		long roomCount = tx.getResourceCount(TYPE_ROOM);
 		List<YearlySummary> summaries = new ArrayList<>();
 		dataMap.forEach((year, data) -> {
-			summaries.add(new YearlySummary(year, data.bookingsCount, data.totalNights, data.accommodationGross,
-					data.touristTax, data.totalGross, data.airbnbBookings, data.directBookings));
+			double daysInYear = LocalDate.of(year, 1, 1).isLeapYear() ? 366 : 365;
+			double occupancy = roomCount == 0 ? 0 : (double) data.totalNights / (roomCount * daysInYear);
+			summaries.add(new YearlySummary(year, data.bookingsCount, data.totalNights, occupancy,
+					data.accommodationGross, data.touristTax, data.totalGross, data.airbnbBookings,
+					data.directBookings));
 		});
 		return summaries;
 	}
