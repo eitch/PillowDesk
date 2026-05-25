@@ -427,29 +427,43 @@
             </div>
             <div class="form-group">
                 <label>Room</label>
-                <select id="stay-room"></select>
+                <select id="stay-room" onchange="updateSummary()"></select>
             </div>
             <div class="form-group">
                 <label>Rate</label>
-                <select id="stay-rate"></select>
+                <select id="stay-rate" onchange="updateSummary()"></select>
             </div>
             <div class="form-group">
                 <label>Check-In</label>
-                <input type="date" id="stay-checkIn">
+                <input type="date" id="stay-checkIn" onchange="updateSummary()">
             </div>
             <div class="form-group">
                 <label>Check-Out</label>
-                <input type="date" id="stay-checkOut">
+                <input type="date" id="stay-checkOut" onchange="updateSummary()">
             </div>
             <div class="form-group">
                 <label>Adults</label>
-                <input type="number" id="stay-adults" value="2">
+                <input type="number" id="stay-adults" value="1" oninput="updateSummary()">
             </div>
             <div class="form-group">
                 <label>Children</label>
-                <input type="number" id="stay-children" value="0">
+                <input type="number" id="stay-children" value="0" oninput="updateSummary()">
             </div>
         </div>
+
+        <!-- Summary Section -->
+        <div id="stay-summary" class="hidden" style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <h3 style="margin-top: 0; font-size: 1rem; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">Summary</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+                <div>Number of Nights:</div>
+                <div id="summary-nights" style="font-weight: 700; text-align: right;">0</div>
+                <div>Tourist Tax:</div>
+                <div id="summary-tourist-tax" style="font-weight: 700; text-align: right;">CHF 0.00</div>
+                <div>Total Revenue:</div>
+                <div id="summary-total-revenue" style="font-weight: 700; text-align: right; color: var(--primary-color); font-size: 1.1rem;">CHF 0.00</div>
+            </div>
+        </div>
+
         <div style="text-align: right; margin-top: 3rem; display: flex; justify-content: flex-end; gap: 1rem;">
             <button class="btn btn-secondary" style="min-width: 120px;" onclick="closeModal()">Cancel</button>
             <button class="btn btn-primary" style="min-width: 120px;" onclick="saveStay()">Save Booking</button>
@@ -698,7 +712,7 @@
             document.getElementById('stay-bookingId').value = params.bookingId || '';
             document.getElementById('stay-checkIn').value = params.checkIn ? params.checkIn.substring(0, 10) : '';
             document.getElementById('stay-checkOut').value = params.checkOut ? params.checkOut.substring(0, 10) : '';
-            document.getElementById('stay-adults').value = params.adults || 2;
+            document.getElementById('stay-adults').value = params.adults || 1;
             document.getElementById('stay-children').value = params.children || 0;
             document.getElementById('stay-room').value = params.room || '';
             document.getElementById('stay-rate').value = params.rate || '';
@@ -717,13 +731,89 @@
         document.getElementById('stay-bookingId').value = '';
         document.getElementById('stay-checkIn').value = '';
         document.getElementById('stay-checkOut').value = '';
-        document.getElementById('stay-adults').value = 2;
+        document.getElementById('stay-adults').value = 1;
         document.getElementById('stay-children').value = 0;
         document.getElementById('stay-modal').classList.remove('hidden');
     }
 
     function closeModal() {
         document.getElementById('stay-modal').classList.add('hidden');
+    }
+
+    async function updateSummary() {
+        const id = document.getElementById('stay-id').value;
+        const guestName = document.getElementById('stay-guestName').value;
+        const bookingId = document.getElementById('stay-bookingId').value;
+        const checkIn = document.getElementById('stay-checkIn').value;
+        const checkOut = document.getElementById('stay-checkOut').value;
+        const adults = document.getElementById('stay-adults').value;
+        const children = document.getElementById('stay-children').value;
+        const room = document.getElementById('stay-room').value;
+        const rate = document.getElementById('stay-rate').value;
+
+        const summaryDiv = document.getElementById('stay-summary');
+
+        if (!checkIn || !checkOut || !room || !rate) {
+            summaryDiv.classList.add('hidden');
+            return;
+        }
+
+        const stay = {
+            id: id || 'stay_' + Date.now(),
+            name: guestName || 'Temporary',
+            type: 'Stay',
+            objectType: 'Order',
+            date: new Date().toISOString(),
+            parameterBags: {
+                parameters: {
+                    id: 'parameters',
+                    name: 'Parameters',
+                    type: 'Parameters',
+                    parameters: {
+                        guestName: { id: 'guestName', name: 'Guest Name', type: 'String', value: guestName || 'Temporary' },
+                        bookingId: { id: 'bookingId', name: 'Booking ID', type: 'String', value: bookingId || '' },
+                        checkIn: { id: 'checkIn', name: 'Check-In', type: 'Date', value: checkIn + 'T00:00:00Z' },
+                        checkOut: { id: 'checkOut', name: 'Check-Out', type: 'Date', value: checkOut + 'T00:00:00Z' },
+                        adults: { id: 'adults', name: 'Adults', type: 'Integer', value: parseInt(adults) || 1 },
+                        children: { id: 'children', name: 'Children', type: 'Integer', value: parseInt(children) || 0 }
+                    }
+                },
+                relations: {
+                    id: 'relations',
+                    name: 'Relations',
+                    type: 'Relations',
+                    parameters: {
+                        room: { id: 'room', name: 'Room', type: 'String', value: room, interpretation: 'Resource-Ref', uom: 'Room' },
+                        rate: { id: 'rate', name: 'Rate', type: 'String', value: rate, interpretation: 'Resource-Ref', uom: 'Rate' }
+                    }
+                }
+            }
+        };
+
+        try {
+            const response = await fetch(`${API_BASE}/pillowdesk/stays/calculate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': authToken
+                },
+                body: JSON.stringify(stay)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                const costs = result.data;
+                document.getElementById('summary-nights').innerText = costs.nights;
+                document.getElementById('summary-tourist-tax').innerText = `CHF ${costs.touristTax.toFixed(2)}`;
+                document.getElementById('summary-total-revenue').innerText = `CHF ${costs.totalRevenue.toFixed(2)}`;
+                summaryDiv.classList.remove('hidden');
+            } else {
+                summaryDiv.classList.add('hidden');
+            }
+        } catch (e) {
+            console.error('Failed to update summary', e);
+            summaryDiv.classList.add('hidden');
+        }
     }
 
     async function saveStay() {
