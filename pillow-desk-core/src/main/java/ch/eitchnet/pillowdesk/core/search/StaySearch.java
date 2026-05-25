@@ -24,7 +24,7 @@ public class StaySearch extends OrderSearch {
 		if (fromZdt != null && toZdt != null) {
 
 			// A stay overlaps if checkIn < to AND checkOut > from
-			where(param(PARAM_CHECK_IN).isBefore(toZdt, true).and(param(PARAM_CHECK_OUT).isAfter(fromZdt, true)));
+			where(param(PARAM_CHECK_IN).isBefore(toZdt, false).and(param(PARAM_CHECK_OUT).isAfter(fromZdt, false)));
 		}
 		return this;
 	}
