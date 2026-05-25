@@ -20,5 +20,8 @@
         <Roles>
             <Role>agent</Role>
         </Roles>
+        <Properties>
+            <Property name="realm" value="PillowDesk"/>
+        </Properties>
     </User>
 </Users>
