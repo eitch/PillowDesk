@@ -39,7 +39,7 @@ class SummaryResourceTest extends AbstractPillowDeskRestfulTest {
 				new Date(System.currentTimeMillis() + 2 * 86400000))); // +2 days
 		bag.addParameter(new IntegerParameter(PARAM_ADULTS, "Adults", 2));
 		bag.addParameter(new IntegerParameter(PARAM_CHILDREN, "Children", 0));
-		// NOTE: isAirBnb is missing!
+		bag.addParameter(new li.strolch.model.parameter.BooleanParameter(PARAM_IS_AIR_BNB, "Is Airbnb", true));
 		stay.addParameterBag(bag);
 
 		ParameterBag relationsBag = new ParameterBag(BAG_RELATIONS, "Relations", "Relations");
@@ -76,6 +76,12 @@ class SummaryResourceTest extends AbstractPillowDeskRestfulTest {
 			assertEquals(2, data.size());
 			JsonObject summary = data.get(0).getAsJsonObject();
 			assertEquals("Room 1", summary.get("room").getAsString());
+
+			JsonObject totals = result.get("totals").getAsJsonObject();
+			assertEquals(1, totals.get("bookingsCount").getAsInt());
+			assertEquals(2, totals.get("totalNights").getAsInt());
+			assertEquals(1, totals.get("airbnbBookings").getAsInt());
+			assertEquals(0, totals.get("directBookings").getAsInt());
 		}
 
 		// Year summary
@@ -89,6 +95,13 @@ class SummaryResourceTest extends AbstractPillowDeskRestfulTest {
 			JsonObject result = JsonParser.parseString(response.readEntity(String.class)).getAsJsonObject();
 			JsonArray data = result.get("data").getAsJsonArray();
 			assertEquals(1, data.size());
+			JsonObject summary = data.get(0).getAsJsonObject();
+			assertEquals(1, summary.get("bookingsCount").getAsInt());
+			assertEquals(2, summary.get("totalNights").getAsInt());
+
+			JsonObject totals = result.get("totals").getAsJsonObject();
+			assertEquals(1, totals.get("bookingsCount").getAsInt());
+			assertEquals(2, totals.get("totalNights").getAsInt());
 		}
 	}
 }

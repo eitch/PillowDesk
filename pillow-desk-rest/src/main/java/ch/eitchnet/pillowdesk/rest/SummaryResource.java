@@ -54,6 +54,8 @@ public class SummaryResource {
 					.atZone(ZoneId.of(tx.getAgent().getTimezone()));
 
 			List<SummaryService.DailySummary> summaries = service.getDailySummaries(tx, from, to);
+			List<SummaryService.Summary> monthSummaries = service.getMonthlySummaries(tx, from, to);
+			SummaryService.Summary monthTotal = monthSummaries.isEmpty() ? null : monthSummaries.get(0);
 
 			JsonArray array = new JsonArray();
 			for (SummaryService.DailySummary summary : summaries) {
@@ -64,7 +66,22 @@ public class SummaryResource {
 				obj.addProperty("touristTax", summary.touristTax());
 				array.add(obj);
 			}
-			return ResponseUtil.toResponse("data", array);
+
+			JsonObject result = new JsonObject();
+			result.add("data", array);
+			if (monthTotal != null) {
+				JsonObject totals = new JsonObject();
+				totals.addProperty("bookingsCount", monthTotal.bookingsCount());
+				totals.addProperty("totalNights", monthTotal.totalNights());
+				totals.addProperty("netRevenue", monthTotal.accommodationGross());
+				totals.addProperty("touristTax", monthTotal.touristTax());
+				totals.addProperty("occupancy", monthTotal.occupancy());
+				totals.addProperty("airbnbBookings", monthTotal.airbnbBookings());
+				totals.addProperty("directBookings", monthTotal.directBookings());
+				result.add("totals", totals);
+			}
+
+			return ResponseUtil.toResponse(result);
 		}
 	}
 
@@ -80,6 +97,8 @@ public class SummaryResource {
 			ZonedDateTime to = ZonedDateTime.of(year, 12, 31, 23, 59, 59, 999999999,
 					ZoneId.of(tx.getAgent().getTimezone()));
 			List<SummaryService.Summary> summaries = service.getMonthlySummaries(tx, from, to);
+			List<SummaryService.YearlySummary> yearlySummaries = service.getYearlySummaries(tx, year, year);
+			SummaryService.YearlySummary yearTotal = yearlySummaries.isEmpty() ? null : yearlySummaries.get(0);
 
 			JsonArray array = new JsonArray();
 			for (SummaryService.Summary summary : summaries) {
@@ -88,9 +107,28 @@ public class SummaryResource {
 				obj.addProperty("netRevenue", summary.accommodationGross());
 				obj.addProperty("touristTax", summary.touristTax());
 				obj.addProperty("occupancy", summary.occupancy());
+				obj.addProperty("bookingsCount", summary.bookingsCount());
+				obj.addProperty("totalNights", summary.totalNights());
+				obj.addProperty("airbnbBookings", summary.airbnbBookings());
+				obj.addProperty("directBookings", summary.directBookings());
 				array.add(obj);
 			}
-			return ResponseUtil.toResponse("data", array);
+
+			JsonObject result = new JsonObject();
+			result.add("data", array);
+			if (yearTotal != null) {
+				JsonObject totals = new JsonObject();
+				totals.addProperty("bookingsCount", yearTotal.bookingsCount());
+				totals.addProperty("totalNights", yearTotal.totalNights());
+				totals.addProperty("netRevenue", yearTotal.accommodationGross());
+				totals.addProperty("touristTax", yearTotal.touristTax());
+				totals.addProperty("occupancy", yearTotal.occupancy());
+				totals.addProperty("airbnbBookings", yearTotal.airbnbBookings());
+				totals.addProperty("directBookings", yearTotal.directBookings());
+				result.add("totals", totals);
+			}
+
+			return ResponseUtil.toResponse(result);
 		}
 	}
 }
