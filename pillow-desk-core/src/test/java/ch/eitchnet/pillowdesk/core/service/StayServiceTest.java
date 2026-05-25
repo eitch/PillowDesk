@@ -78,8 +78,9 @@ public class StayServiceTest {
 		ServiceResult addResult = serviceHandler.doService(cert, addService, addArg);
 		assertTrue(addResult.isOk(), addResult.getMessage());
 
+		String id = stay.getId();
 		try (StrolchTransaction tx = agent.openTx(cert, StayServiceTest.class, true)) {
-			assertNotNull(tx.getOrderBy(TYPE_STAY, "stay1"));
+			assertNotNull(tx.getOrderBy(TYPE_STAY, id));
 		}
 
 		// 2. Update
@@ -93,20 +94,20 @@ public class StayServiceTest {
 		assertTrue(updateResult.isOk(), updateResult.getMessage());
 
 		try (StrolchTransaction tx = agent.openTx(cert, StayServiceTest.class, true)) {
-			assertEquals("Updated Stay 1", tx.getOrderBy(TYPE_STAY, "stay1").getName());
+			assertEquals("Updated Stay 1", tx.getOrderBy(TYPE_STAY, id).getName());
 		}
 
 		// 3. Remove
 		RemoveStayService.RemoveStayArg removeArg = new RemoveStayService.RemoveStayArg();
 		removeArg.type = TYPE_STAY;
-		removeArg.id = "stay1";
+		removeArg.id = id;
 
 		RemoveStayService removeService = new RemoveStayService();
 		ServiceResult removeResult = serviceHandler.doService(cert, removeService, removeArg);
 		assertTrue(removeResult.isOk(), removeResult.getMessage());
 
 		try (StrolchTransaction tx = agent.openTx(cert, StayServiceTest.class, true)) {
-			assertNull(tx.getOrderBy(TYPE_STAY, "stay1"));
+			assertNull(tx.getOrderBy(TYPE_STAY, id));
 		}
 	}
 }

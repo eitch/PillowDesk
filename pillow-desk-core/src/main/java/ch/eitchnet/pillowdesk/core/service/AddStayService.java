@@ -7,36 +7,41 @@ import li.strolch.service.api.AbstractService;
 import li.strolch.service.api.ServiceArgument;
 import li.strolch.service.api.ServiceResult;
 
+import static ch.eitchnet.pillowdesk.core.policy.StayValidationPolicy.generateBookingId;
+import static ch.eitchnet.pillowdesk.core.policy.StayValidationPolicy.validateNoOverlap;
+
 public class AddStayService extends AbstractService<AddStayService.AddStayArg, ServiceResult> {
 
-    public static class AddStayArg extends ServiceArgument {
-        public Order stay;
-    }
+	public static class AddStayArg extends ServiceArgument {
+		public Order stay;
+	}
 
-    @Override
-    protected ServiceResult internalDoService(AddStayArg arg) {
-        if (arg.stay == null)
-            return ServiceResult.error("Stay is missing!");
+	@Override
+	protected ServiceResult internalDoService(AddStayArg arg) {
+		if (arg.stay == null)
+			return ServiceResult.error("Stay is missing!");
 
-        try (StrolchTransaction tx = openArgOrUserTx(arg)) {
-            if (tx.hasOrder(arg.stay.getType(), arg.stay.getId()))
-                return ServiceResult.error("Stay with ID " + arg.stay.getId() + " already exists!");
+		try (StrolchTransaction tx = openArgOrUserTx(arg)) {
+			validateNoOverlap(tx, arg.stay);
+			generateBookingId(tx, arg.stay);
 
-            StayCalculatorPolicy.calculateAndFill(tx, arg.stay);
-            tx.add(arg.stay);
-            tx.commitOnClose();
-        }
+			StayCalculatorPolicy.calculateAndFill(tx, arg.stay);
+			tx.add(arg.stay);
+			tx.commitOnClose();
+		} catch (Exception e) {
+			return ServiceResult.error(e.getMessage());
+		}
 
-        return ServiceResult.success();
-    }
+		return ServiceResult.success();
+	}
 
-    @Override
-    protected ServiceResult getResultInstance() {
-        return new ServiceResult();
-    }
+	@Override
+	protected ServiceResult getResultInstance() {
+		return new ServiceResult();
+	}
 
-    @Override
-    public AddStayArg getArgumentInstance() {
-        return new AddStayArg();
-    }
+	@Override
+	public AddStayArg getArgumentInstance() {
+		return new AddStayArg();
+	}
 }
