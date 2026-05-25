@@ -42,4 +42,11 @@ public class StaySearch extends OrderSearch {
 		}
 		return this;
 	}
+
+	public StaySearch room(String roomId) {
+		if (roomId != null && !roomId.isEmpty()) {
+			where(param(BAG_RELATIONS, PARAM_ROOM).isEqualTo(roomId));
+		}
+		return this;
+	}
 }
