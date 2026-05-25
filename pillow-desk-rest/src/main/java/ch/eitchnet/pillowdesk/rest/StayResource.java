@@ -71,7 +71,7 @@ public class StayResource {
 				search.dateRange(from, to);
 			}
 
-			List<Order> stays = search.search(tx).toList();
+			List<Order> stays = search.search(tx).orderByParam(PARAM_CHECK_IN, true).cloneIfReadOnly().toList();
 			return ResponseUtil.listToResponse("data", stays, order -> {
 				if (!order.hasParameter(BAG_PARAMETERS, PARAM_TOTAL_REVENUE)) {
 					StayCalculatorPolicy.calculateAndFill(tx, order);
