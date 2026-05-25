@@ -15,6 +15,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import li.strolch.model.Order;
+import li.strolch.model.Resource;
 import li.strolch.model.json.OrderFromJsonVisitor;
 import li.strolch.model.json.StrolchRootElementToJsonVisitor;
 import li.strolch.persistence.api.StrolchTransaction;
@@ -115,6 +116,31 @@ public class StayResource {
 
 		ServiceResult result = getServiceHandler().doService(cert, service, arg);
 		return ResponseUtil.toResponse(result);
+	}
+
+	@POST
+	@Path("calculate")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response calculateCosts(@Context HttpServletRequest request, String data) {
+		Certificate cert = getCertificate(request);
+		JsonObject jsonObject = JsonParser.parseString(data).getAsJsonObject();
+		Order stay = new OrderFromJsonVisitor().visit(jsonObject);
+
+		try (StrolchTransaction tx = openTx(cert)) {
+			if (!stay.hasParameterBag(BAG_RELATIONS) || !stay.getParameterBag(BAG_RELATIONS).hasParameter(PARAM_RATE))
+				return Response.status(Response.Status.BAD_REQUEST).entity("Missing rate relation").build();
+
+			Resource rate = tx.getResourceByRelation(stay, PARAM_RATE, true);
+			StayCalculatorPolicy.StayCosts costs = StayCalculatorPolicy.calculate(stay, rate);
+
+			JsonObject result = new JsonObject();
+			result.addProperty("nights", costs.nights());
+			result.addProperty("touristTax", costs.touristTax());
+			result.addProperty("totalRevenue", costs.totalGross());
+
+			return ResponseUtil.toResponse("data", result);
+		}
 	}
 
 	@PUT
