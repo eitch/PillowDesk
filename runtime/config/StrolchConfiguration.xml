@@ -74,5 +74,23 @@
                 <!--                <corsOrigin>*</corsOrigin>-->
             </Properties>
         </Component>
+
+        <Component>
+            <name>StrolchJobsHandler</name>
+            <api>li.strolch.job.StrolchJobsHandler</api>
+            <impl>li.strolch.job.StrolchJobsHandler</impl>
+            <depends>RealmHandler</depends>
+        </Component>
+
+        <Component>
+            <name>BookingImportHandler</name>
+            <api>ch.eitchnet.pillowdesk.core.BookingImportHandler</api>
+            <impl>ch.eitchnet.pillowdesk.core.BookingImportHandler</impl>
+            <depends>RealmHandler</depends>
+            <depends>StrolchJobsHandler</depends>
+            <Properties>
+                <importPath>import</importPath>
+            </Properties>
+        </Component>
     </env>
 </StrolchConfiguration>
