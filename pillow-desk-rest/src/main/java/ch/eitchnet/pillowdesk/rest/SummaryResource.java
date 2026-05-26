@@ -34,7 +34,7 @@ public class SummaryResource {
 	}
 
 	private static StrolchTransaction openTx(Certificate certificate) {
-		return RestfulStrolchComponent.getInstance().openTx(certificate, getCallerMethod());
+		return RestfulStrolchComponent.getInstance().openTx(certificate, getCallerMethod(2));
 	}
 
 	@GET

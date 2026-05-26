@@ -18,6 +18,7 @@ import java.util.List;
 
 import static ch.eitchnet.pillowdesk.core.model.ModelConstants.TYPE_RATE;
 import static li.strolch.rest.StrolchRestfulConstants.STROLCH_CERTIFICATE;
+import static li.strolch.utils.helper.ExceptionHelper.getCallerMethod;
 
 @Path("pillowdesk/rates")
 public class RateResource {
@@ -27,7 +28,7 @@ public class RateResource {
 	}
 
 	private StrolchTransaction openTx(Certificate cert) {
-		return RestfulStrolchComponent.getInstance().openTx(cert, RateResource.class.getSimpleName());
+		return RestfulStrolchComponent.getInstance().openTx(cert, getCallerMethod(2));
 	}
 
 	@GET
