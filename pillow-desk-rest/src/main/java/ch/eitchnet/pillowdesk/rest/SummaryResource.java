@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import static ch.eitchnet.pillowdesk.core.SummaryService.*;
 import static li.strolch.rest.StrolchRestfulConstants.STROLCH_CERTIFICATE;
 import static li.strolch.utils.helper.ExceptionHelper.getCallerMethod;
 
@@ -53,12 +54,12 @@ public class SummaryResource {
 					.atTime(23, 59, 59, 999999999)
 					.atZone(ZoneId.of(tx.getAgent().getTimezone()));
 
-			List<SummaryService.BookingSummary> summaries = service.getBookingSummaries(tx, from, to);
-			List<SummaryService.Summary> monthSummaries = service.getMonthlySummaries(tx, from, to);
-			SummaryService.Summary monthTotal = monthSummaries.isEmpty() ? null : monthSummaries.get(0);
+			List<BookingSummary> summaries = service.getBookingSummaries(tx, from, to);
+			List<Summary> monthSummaries = service.getMonthlySummaries(tx, from, to);
+			Summary monthTotal = monthSummaries.isEmpty() ? null : monthSummaries.getFirst();
 
 			JsonArray array = new JsonArray();
-			for (SummaryService.BookingSummary summary : summaries) {
+			for (BookingSummary summary : summaries) {
 				JsonObject obj = new JsonObject();
 				obj.addProperty("guestName", summary.guestName());
 				obj.addProperty("room", summary.room());
@@ -98,12 +99,12 @@ public class SummaryResource {
 			ZonedDateTime from = ZonedDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneId.of(tx.getAgent().getTimezone()));
 			ZonedDateTime to = ZonedDateTime.of(year, 12, 31, 23, 59, 59, 999999999,
 					ZoneId.of(tx.getAgent().getTimezone()));
-			List<SummaryService.Summary> summaries = service.getMonthlySummaries(tx, from, to);
-			List<SummaryService.YearlySummary> yearlySummaries = service.getYearlySummaries(tx, year, year);
-			SummaryService.YearlySummary yearTotal = yearlySummaries.isEmpty() ? null : yearlySummaries.get(0);
+			List<Summary> summaries = service.getMonthlySummaries(tx, from, to);
+			List<YearlySummary> yearlySummaries = service.getYearlySummaries(tx, year, year);
+			YearlySummary yearTotal = yearlySummaries.isEmpty() ? null : yearlySummaries.get(0);
 
 			JsonArray array = new JsonArray();
-			for (SummaryService.Summary summary : summaries) {
+			for (Summary summary : summaries) {
 				JsonObject obj = new JsonObject();
 				obj.addProperty("month", summary.period().toString());
 				obj.addProperty("netRevenue", summary.accommodationGross());
