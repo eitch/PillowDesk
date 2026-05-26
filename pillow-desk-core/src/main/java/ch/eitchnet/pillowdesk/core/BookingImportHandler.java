@@ -148,7 +148,7 @@ public class BookingImportHandler extends StrolchComponent {
 		stay.getParameter(BAG_RELATIONS, PARAM_ROOM, true).setValue("room_1");
 		stay.getParameter(BAG_RELATIONS, PARAM_RATE, true).setValue(isAirBnb ? "rate_airbnb" : "rate_standard");
 
-		StayValidationPolicy.validateNoOverlap(tx, stay);
+		StayValidationPolicy.validate(tx, stay);
 
 		if (exists)
 			tx.update(stay);
