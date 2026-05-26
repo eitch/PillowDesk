@@ -26,7 +26,11 @@ public class SummaryService {
 	                      long directBookings) {
 	}
 
-	public record DailySummary(LocalDate date, String room, double netRevenue, double touristTax) {
+	public record DailySummary(LocalDate date, String room, double netRevenue, double touristTax, boolean isAirBnb) {
+	}
+
+	public record BookingSummary(String guestName, boolean isAirBnb, String room, long nights, double netRevenue,
+	                             double touristTax) {
 	}
 
 	public record YearlySummary(int year, long bookingsCount, long totalNights, double occupancy,
@@ -95,13 +99,7 @@ public class SummaryService {
 			SummaryData dataForStartMonth = dataMap.computeIfAbsent(startMonth, k -> new SummaryData());
 			dataForStartMonth.bookingsCount++;
 
-			boolean isAirBnb = false;
-			BooleanParameter isAirBnbParam = stay.getParameter(BAG_PARAMETERS, PARAM_IS_AIR_BNB, false);
-			if (isAirBnbParam == null)
-				isAirBnbParam = rate.getParameter(BAG_PARAMETERS, PARAM_IS_AIR_BNB, false);
-			if (isAirBnbParam != null)
-				isAirBnb = isAirBnbParam.getValue();
-
+			boolean isAirBnb = isAirBnb(stay, rate);
 			if (isAirBnb) {
 				dataForStartMonth.airbnbBookings++;
 			} else {
@@ -134,6 +132,48 @@ public class SummaryService {
 		return summaries;
 	}
 
+	public List<BookingSummary> getBookingSummaries(StrolchTransaction tx, ZonedDateTime from, ZonedDateTime to) {
+		List<Order> stays = new StaySearch().dateRange(from, to).search(tx).toList();
+
+		List<BookingSummary> summaries = new ArrayList<>();
+
+		for (Order stay : stays) {
+			Resource rate = tx.getResourceByRelation(stay, PARAM_RATE, true);
+			StayCalculatorPolicy.StayCosts costs = StayCalculatorPolicy.calculate(stay, rate);
+			Resource room = tx.getResourceByRelation(stay, PARAM_ROOM, false);
+			String roomName = room != null ? room.getName() : "Unknown";
+
+			boolean isAirBnb = isAirBnb(stay, rate);
+
+			DateParameter checkInParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_IN);
+			ZonedDateTime checkIn = checkInParam.getValueZdt();
+			DateParameter checkOutParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_OUT);
+			ZonedDateTime checkOut = checkOutParam.getValueZdt();
+
+			long nightsInPeriod = 0;
+			double netRevenueInPeriod = 0;
+			double touristTaxInPeriod = 0;
+
+			ZonedDateTime current = checkIn;
+			while (current.isBefore(checkOut) && costs.nights() > 0) {
+				if (!current.isBefore(from) && current.isBefore(to)) {
+					nightsInPeriod++;
+					netRevenueInPeriod += costs.accommodationGross() / costs.nights();
+					touristTaxInPeriod += costs.touristTax() / costs.nights();
+				}
+				current = current.plusDays(1);
+			}
+
+			if (nightsInPeriod > 0) {
+				String guestName = stay.getParameter(BAG_PARAMETERS, PARAM_GUEST_NAME).getValue();
+				summaries.add(new BookingSummary(guestName, isAirBnb, roomName, nightsInPeriod, netRevenueInPeriod,
+						touristTaxInPeriod));
+			}
+		}
+
+		return summaries;
+	}
+
 	public List<DailySummary> getDailySummaries(StrolchTransaction tx, ZonedDateTime from, ZonedDateTime to) {
 		List<Order> stays = new StaySearch().dateRange(from, to).search(tx).toList();
 
@@ -144,6 +184,8 @@ public class SummaryService {
 			StayCalculatorPolicy.StayCosts costs = StayCalculatorPolicy.calculate(stay, rate);
 			Resource room = tx.getResourceByRelation(stay, PARAM_ROOM, false);
 			String roomName = room != null ? room.getName() : "Unknown";
+
+			boolean isAirBnb = isAirBnb(stay, rate);
 
 			DateParameter checkInParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_IN);
 			ZonedDateTime checkIn = checkInParam.getValueZdt();
@@ -159,6 +201,7 @@ public class SummaryService {
 							.computeIfAbsent(roomName, k -> new DailySummaryData());
 					data.netRevenue += costs.accommodationGross() / costs.nights();
 					data.touristTax += costs.touristTax() / costs.nights();
+					data.isAirBnb = isAirBnb;
 				}
 				current = current.plusDays(1);
 			}
@@ -167,15 +210,23 @@ public class SummaryService {
 		List<DailySummary> summaries = new ArrayList<>();
 		dataMap.forEach((date, rooms) -> {
 			rooms.forEach((room, data) -> {
-				summaries.add(new DailySummary(date, room, data.netRevenue, data.touristTax));
+				summaries.add(new DailySummary(date, room, data.netRevenue, data.touristTax, data.isAirBnb));
 			});
 		});
 		return summaries;
 	}
 
+	private boolean isAirBnb(Order stay, Resource rate) {
+		BooleanParameter isAirBnbParam = stay.getParameter(BAG_PARAMETERS, PARAM_IS_AIR_BNB, false);
+		if (isAirBnbParam == null)
+			isAirBnbParam = rate.getParameter(BAG_PARAMETERS, PARAM_IS_AIR_BNB, false);
+		return isAirBnbParam != null && isAirBnbParam.getValue();
+	}
+
 	private static class DailySummaryData {
 		double netRevenue;
 		double touristTax;
+		boolean isAirBnb;
 	}
 
 	private static class SummaryData {

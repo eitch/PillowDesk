@@ -53,17 +53,19 @@ public class SummaryResource {
 					.atTime(23, 59, 59, 999999999)
 					.atZone(ZoneId.of(tx.getAgent().getTimezone()));
 
-			List<SummaryService.DailySummary> summaries = service.getDailySummaries(tx, from, to);
+			List<SummaryService.BookingSummary> summaries = service.getBookingSummaries(tx, from, to);
 			List<SummaryService.Summary> monthSummaries = service.getMonthlySummaries(tx, from, to);
 			SummaryService.Summary monthTotal = monthSummaries.isEmpty() ? null : monthSummaries.get(0);
 
 			JsonArray array = new JsonArray();
-			for (SummaryService.DailySummary summary : summaries) {
+			for (SummaryService.BookingSummary summary : summaries) {
 				JsonObject obj = new JsonObject();
-				obj.addProperty("date", summary.date().toString());
+				obj.addProperty("guestName", summary.guestName());
 				obj.addProperty("room", summary.room());
+				obj.addProperty("nights", summary.nights());
 				obj.addProperty("netRevenue", summary.netRevenue());
 				obj.addProperty("touristTax", summary.touristTax());
+				obj.addProperty("isAirBnb", summary.isAirBnb());
 				array.add(obj);
 			}
 
