@@ -26,8 +26,6 @@ public class SummaryService {
 	                      long directBookings) {
 	}
 
-	public record DailySummary(LocalDate date, String room, double netRevenue, double touristTax, boolean isAirBnb) {
-	}
 
 	public record BookingSummary(String guestName, boolean isAirBnb, String room, long nights, double netRevenue,
 	                             double touristTax) {
@@ -174,47 +172,6 @@ public class SummaryService {
 		return summaries;
 	}
 
-	public List<DailySummary> getDailySummaries(StrolchTransaction tx, ZonedDateTime from, ZonedDateTime to) {
-		List<Order> stays = new StaySearch().dateRange(from, to).search(tx).toList();
-
-		Map<LocalDate, Map<String, DailySummaryData>> dataMap = new TreeMap<>();
-
-		for (Order stay : stays) {
-			Resource rate = tx.getResourceByRelation(stay, PARAM_RATE, true);
-			StayCalculatorPolicy.StayCosts costs = StayCalculatorPolicy.calculate(stay, rate);
-			Resource room = tx.getResourceByRelation(stay, PARAM_ROOM, false);
-			String roomName = room != null ? room.getName() : "Unknown";
-
-			boolean isAirBnb = isAirBnb(stay, rate);
-
-			DateParameter checkInParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_IN);
-			ZonedDateTime checkIn = checkInParam.getValueZdt();
-			DateParameter checkOutParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_OUT);
-			ZonedDateTime checkOut = checkOutParam.getValueZdt();
-
-			ZonedDateTime current = checkIn;
-			while (current.isBefore(checkOut) && costs.nights() > 0) {
-				if (!current.isBefore(from) && current.isBefore(to)) {
-					LocalDate date = current.toLocalDate();
-					DailySummaryData data = dataMap
-							.computeIfAbsent(date, k -> new TreeMap<>())
-							.computeIfAbsent(roomName, k -> new DailySummaryData());
-					data.netRevenue += costs.accommodationGross() / costs.nights();
-					data.touristTax += costs.touristTax() / costs.nights();
-					data.isAirBnb = isAirBnb;
-				}
-				current = current.plusDays(1);
-			}
-		}
-
-		List<DailySummary> summaries = new ArrayList<>();
-		dataMap.forEach((date, rooms) -> {
-			rooms.forEach((room, data) -> {
-				summaries.add(new DailySummary(date, room, data.netRevenue, data.touristTax, data.isAirBnb));
-			});
-		});
-		return summaries;
-	}
 
 	private boolean isAirBnb(Order stay, Resource rate) {
 		BooleanParameter isAirBnbParam = stay.getParameter(BAG_PARAMETERS, PARAM_IS_AIR_BNB, false);
@@ -223,11 +180,6 @@ public class SummaryService {
 		return isAirBnbParam != null && isAirBnbParam.getValue();
 	}
 
-	private static class DailySummaryData {
-		double netRevenue;
-		double touristTax;
-		boolean isAirBnb;
-	}
 
 	private static class SummaryData {
 		long bookingsCount;

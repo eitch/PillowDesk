@@ -73,9 +73,11 @@ class SummaryResourceTest extends AbstractPillowDeskRestfulTest {
 			assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 			JsonObject result = JsonParser.parseString(response.readEntity(String.class)).getAsJsonObject();
 			JsonArray data = result.get("data").getAsJsonArray();
-			assertEquals(2, data.size());
+			assertEquals(1, data.size());
 			JsonObject summary = data.get(0).getAsJsonObject();
+			assertEquals("John Doe", summary.get("guestName").getAsString());
 			assertEquals("Room 1", summary.get("room").getAsString());
+			assertEquals(2, summary.get("nights").getAsInt());
 
 			JsonObject totals = result.get("totals").getAsJsonObject();
 			assertEquals(1, totals.get("bookingsCount").getAsInt());
