@@ -863,6 +863,23 @@
             return;
         }
 
+        if (checkIn === checkOut || new Date(checkOut) < new Date(checkIn)) {
+            showInfo('Invalid Dates', 'Stay must be at least one night long.');
+            return;
+        }
+
+        const adultsCount = parseInt(adults) || 0;
+        const childrenCount = parseInt(children) || 0;
+        if (adultsCount === 0 && childrenCount === 0) {
+            showInfo('Invalid People Count', 'At least one adult or child must be set.');
+            return;
+        }
+
+        if (adultsCount < 0 || childrenCount < 0) {
+            showInfo('Invalid People Count', 'People count cannot be negative.');
+            return;
+        }
+
         const stay = {
             id: id || 'stay_' + Date.now(),
             name: guestName,
