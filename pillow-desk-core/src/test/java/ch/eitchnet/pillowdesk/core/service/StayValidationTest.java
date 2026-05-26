@@ -5,6 +5,7 @@ import li.strolch.model.Order;
 import li.strolch.model.ParameterBag;
 import li.strolch.model.StrolchModelConstants;
 import li.strolch.model.parameter.DateParameter;
+import li.strolch.model.parameter.IntegerParameter;
 import li.strolch.model.parameter.StringParameter;
 import li.strolch.persistence.api.StrolchTransaction;
 import li.strolch.privilege.model.Certificate;
@@ -65,6 +66,9 @@ public class StayValidationTest {
 		ParameterBag bag = new ParameterBag(BAG_PARAMETERS, "Parameters", "Parameters");
 		bag.addParameter(new DateParameter(PARAM_CHECK_IN, "Check-In", checkIn));
 		bag.addParameter(new DateParameter(PARAM_CHECK_OUT, "Check-Out", checkOut));
+		bag.addParameter(new IntegerParameter(PARAM_ADULTS, "Adults", 1));
+		bag.addParameter(new IntegerParameter(PARAM_CHILDREN, "Children", 0));
+		bag.addParameter(new StringParameter(PARAM_GUEST_NAME, "Guest Name", name));
 		stay.addParameterBag(bag);
 
 		ParameterBag relationsBag = new ParameterBag(BAG_RELATIONS, "Relations", "Relations");
@@ -154,11 +158,68 @@ public class StayValidationTest {
 			Order actualStay = stays.get(0);
 			assertNotEquals("providedId", actualStay.getId());
 			assertNotNull(actualStay.getId());
-			
+
 			// Check if bookingId parameter is also set and unique
 			StringParameter bookingIdParam = actualStay.getParameter(BAG_PARAMETERS, PARAM_BOOKING_ID, false);
 			assertNotNull(bookingIdParam, "Booking ID parameter should be set");
 			assertEquals(actualStay.getId(), bookingIdParam.getValue(), "Booking ID parameter should match Strolch ID");
 		}
+	}
+
+	@Test
+	public void shouldNotAllowStayShorterThanOneNight() {
+		StrolchAgent agent = runtimeMock.getAgent();
+		Certificate cert = runtimeMock.loginAdmin();
+		ServiceHandler serviceHandler = agent.getComponent(ServiceHandler.class);
+
+		Date now = new Date();
+		// Same check-in and check-out means 0 nights
+		Order stay = createStay("stay_short", "Short Stay", now, now, "room_1");
+		AddStayService.AddStayArg addArg = new AddStayService.AddStayArg();
+		addArg.stay = stay;
+		ServiceResult addResult = serviceHandler.doService(cert, new AddStayService(), addArg);
+		assertFalse(addResult.isOk(), "Should not allow stay shorter than 1 night");
+		assertTrue(addResult.getMessage().contains("at least one night"), "Error message should mention stay length");
+	}
+
+	@Test
+	public void shouldNotAllowEmptyGuestName() {
+		StrolchAgent agent = runtimeMock.getAgent();
+		Certificate cert = runtimeMock.loginAdmin();
+		ServiceHandler serviceHandler = agent.getComponent(ServiceHandler.class);
+
+		long day = 86400000;
+		Date now = new Date();
+		Date tomorrow = new Date(now.getTime() + day);
+
+		Order stay = createStay("stay_no_name", "Valid Name", now, tomorrow, "room_1");
+		stay.getParameter(BAG_PARAMETERS, PARAM_GUEST_NAME, true).setValue("");
+
+		AddStayService.AddStayArg addArg = new AddStayService.AddStayArg();
+		addArg.stay = stay;
+		ServiceResult addResult = serviceHandler.doService(cert, new AddStayService(), addArg);
+		assertFalse(addResult.isOk(), "Should not allow empty guest name");
+		assertTrue(addResult.getMessage().contains("Guest name must be set"), "Error message should mention guest name");
+	}
+
+	@Test
+	public void shouldNotAllowZeroPeople() {
+		StrolchAgent agent = runtimeMock.getAgent();
+		Certificate cert = runtimeMock.loginAdmin();
+		ServiceHandler serviceHandler = agent.getComponent(ServiceHandler.class);
+
+		long day = 86400000;
+		Date now = new Date();
+		Date tomorrow = new Date(now.getTime() + day);
+
+		Order stay = createStay("stay_no_people", "No People", now, tomorrow, "room_1");
+		stay.getParameter(BAG_PARAMETERS, PARAM_ADULTS, true).setValue(0);
+		stay.getParameter(BAG_PARAMETERS, PARAM_CHILDREN, true).setValue(0);
+
+		AddStayService.AddStayArg addArg = new AddStayService.AddStayArg();
+		addArg.stay = stay;
+		ServiceResult addResult = serviceHandler.doService(cert, new AddStayService(), addArg);
+		assertFalse(addResult.isOk(), "Should not allow zero people");
+		assertTrue(addResult.getMessage().contains("At least one adult or child"), "Error message should mention people count");
 	}
 }

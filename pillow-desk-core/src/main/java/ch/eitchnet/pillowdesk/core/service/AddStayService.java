@@ -7,8 +7,7 @@ import li.strolch.service.api.AbstractService;
 import li.strolch.service.api.ServiceArgument;
 import li.strolch.service.api.ServiceResult;
 
-import static ch.eitchnet.pillowdesk.core.policy.StayValidationPolicy.generateBookingId;
-import static ch.eitchnet.pillowdesk.core.policy.StayValidationPolicy.validateNoOverlap;
+import static ch.eitchnet.pillowdesk.core.policy.StayValidationPolicy.*;
 
 public class AddStayService extends AbstractService<AddStayService.AddStayArg, ServiceResult> {
 
@@ -22,7 +21,7 @@ public class AddStayService extends AbstractService<AddStayService.AddStayArg, S
 			return ServiceResult.error("Stay is missing!");
 
 		try (StrolchTransaction tx = openArgOrUserTx(arg)) {
-			validateNoOverlap(tx, arg.stay);
+			validate(tx, arg.stay);
 			generateBookingId(tx, arg.stay);
 
 			StayCalculatorPolicy.calculateAndFill(tx, arg.stay);

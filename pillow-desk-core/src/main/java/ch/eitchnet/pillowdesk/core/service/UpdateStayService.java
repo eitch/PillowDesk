@@ -7,7 +7,7 @@ import li.strolch.service.api.AbstractService;
 import li.strolch.service.api.ServiceArgument;
 import li.strolch.service.api.ServiceResult;
 
-import static ch.eitchnet.pillowdesk.core.policy.StayValidationPolicy.validateNoOverlap;
+import static ch.eitchnet.pillowdesk.core.policy.StayValidationPolicy.validate;
 
 public class UpdateStayService extends AbstractService<UpdateStayService.UpdateStayArg, ServiceResult> {
 
@@ -24,7 +24,7 @@ public class UpdateStayService extends AbstractService<UpdateStayService.UpdateS
 			if (!tx.hasOrder(arg.stay.getType(), arg.stay.getId()))
 				return ServiceResult.error("Stay with ID " + arg.stay.getId() + " does not exist!");
 
-			validateNoOverlap(tx, arg.stay);
+			validate(tx, arg.stay);
 
 			StayCalculatorPolicy.calculateAndFill(tx, arg.stay);
 			tx.update(arg.stay);
