@@ -92,10 +92,10 @@ public class StayResource {
 			if (stay == null) {
 				return Response.status(Response.Status.NOT_FOUND).build();
 			}
+			stay = stay.ensureModifiable();
 
-			if (!stay.hasParameter(BAG_PARAMETERS, PARAM_TOTAL_REVENUE)) {
+			if (!stay.hasParameter(BAG_PARAMETERS, PARAM_TOTAL_REVENUE))
 				StayCalculatorPolicy.calculateAndFill(tx, stay);
-			}
 
 			return ResponseUtil.toResponse("data", stay.accept(new StrolchRootElementToJsonVisitor()));
 		}

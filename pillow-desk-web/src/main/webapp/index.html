@@ -309,6 +309,7 @@
             <button class="tab active" onclick="showTab('stays-tab', this)">Stays</button>
             <button class="tab" onclick="showTab('monthly-tab', this)">Monthly Summary</button>
             <button class="tab" onclick="showTab('yearly-tab', this)">Yearly Summary</button>
+            <button class="tab" onclick="showTab('rates-tab', this)">Rates</button>
         </div>
 
         <!-- Stays Tab -->
@@ -363,6 +364,42 @@
                             </tr>
                         </thead>
                         <tbody id="stays-body">
+                            <!-- Loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rates Tab -->
+        <div id="rates-tab" class="tab-content hidden">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2 style="margin:0">Manage Rates</h2>
+                    <button class="btn btn-primary" onclick="openAddRateModal()">+ Add New Rate</button>
+                </div>
+
+                <div class="search-bar">
+                    <div class="form-group" style="grid-column: span 3;">
+                        <label>Rate Name</label>
+                        <input type="text" id="search-rate-name" placeholder="Filter by name...">
+                    </div>
+                    <button class="btn btn-primary" onclick="loadRates()">Apply Filters</button>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table id="rates-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Base Price</th>
+                                <th>Service Fee</th>
+                                <th>Discount</th>
+                                <th style="text-align:center">Airbnb</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rates-body">
                             <!-- Loaded via JS -->
                         </tbody>
                     </table>
@@ -503,6 +540,48 @@
     </div>
 </div>
 
+<!-- Rate Modal -->
+<div id="rate-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="rate-modal-title">Add Rate</h2>
+            <button class="btn btn-secondary" style="padding: 8px;" onclick="closeRateModal()">✕</button>
+        </div>
+        <form id="rate-form" onsubmit="saveRate(event)">
+            <input type="hidden" id="rate-id">
+            <div class="form-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Name</label>
+                    <input type="text" id="rate-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Base Price (CHF)</label>
+                    <input type="number" step="0.01" id="rate-basePrice" required>
+                </div>
+                <div class="form-group">
+                    <label>Service Fee (%)</label>
+                    <input type="number" step="0.01" id="rate-serviceFee" required>
+                </div>
+                <div class="form-group">
+                    <label>Discount (%)</label>
+                    <input type="number" step="0.01" id="rate-discount" required>
+                </div>
+                <div class="form-group">
+                    <label>Is AirBnb</label>
+                    <select id="rate-isAirBnb">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeRateModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Rate</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     function showInfo(title, message) {
         document.getElementById('info-title').innerText = title || 'Information';
@@ -565,6 +644,7 @@
         if (btn) btn.classList.add('active');
 
         if (tabId === 'stays-tab') loadStays();
+        if (tabId === 'rates-tab') loadRates();
     }
 
     function showLoginView() {
@@ -647,6 +727,165 @@
         localStorage.removeItem('authToken');
         localStorage.removeItem('username');
         showLoginView();
+    }
+
+    async function loadRates() {
+        const name = document.getElementById('search-rate-name').value;
+        let url = `${API_BASE}/pillowdesk/rates?`;
+        if (name) url += `name=${encodeURIComponent(name)}&`;
+
+        try {
+            const response = await fetch(url, {
+                headers: { 'Authorization': authToken }
+            });
+
+            if (response.status === 401) {
+                logout();
+                return;
+            }
+
+            const result = await handleResponse(response, 'Rates');
+            renderRates(result.data);
+        } catch (e) {
+            console.error('Failed to load rates', e);
+        }
+    }
+
+    function renderRates(rates) {
+        const tbody = document.getElementById('rates-body');
+        tbody.innerHTML = '';
+        rates.forEach(rate => {
+            const tr = document.createElement('tr');
+            const params = {};
+            if (rate.parameterBags) {
+                Object.values(rate.parameterBags).forEach(bag => {
+                    if (bag.parameters) {
+                        Object.values(bag.parameters).forEach(p => params[p.id] = p.value);
+                    }
+                });
+            }
+
+            tr.innerHTML = `
+                <td><div style="font-weight:700; color:var(--text-color)">${rate.name}</div></td>
+                <td>CHF ${params.basePrice ? Number(params.basePrice).toFixed(2) : '0.00'}</td>
+                <td>${params.serviceFee ? Number(params.serviceFee).toFixed(2) : '0.00'} %</td>
+                <td>${params.discount ? Number(params.discount).toFixed(2) : '0.00'} %</td>
+                <td style="text-align:center">${params.isAirBnb ? '🏠' : ''}</td>
+                <td class="actions">
+                    <div style="display:flex; gap:0.5rem">
+                        <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="openEditRateModal('${rate.id}')">Edit</button>
+                        <button class="btn btn-danger" style="padding: 8px 16px; font-size: 0.85rem;" onclick="deleteRate('${rate.id}')">Delete</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function openAddRateModal() {
+        document.getElementById('rate-modal-title').innerText = 'Add Rate';
+        document.getElementById('rate-id').value = '';
+        document.getElementById('rate-form').reset();
+        document.getElementById('rate-modal').classList.remove('hidden');
+    }
+
+    async function openEditRateModal(id) {
+        try {
+            const response = await fetch(`${API_BASE}/pillowdesk/rates/${id}`, {
+                headers: { 'Authorization': authToken }
+            });
+            const result = await handleResponse(response, 'Load Rate');
+            const rate = result.data;
+
+            document.getElementById('rate-modal-title').innerText = 'Edit Rate';
+            document.getElementById('rate-id').value = rate.id;
+            document.getElementById('rate-name').value = rate.name;
+
+            const params = {};
+            if (rate.parameterBags) {
+                Object.values(rate.parameterBags).forEach(bag => {
+                    if (bag.parameters) {
+                        Object.values(bag.parameters).forEach(p => params[p.id] = p.value);
+                    }
+                });
+            }
+
+            document.getElementById('rate-basePrice').value = params.basePrice || 0;
+            document.getElementById('rate-serviceFee').value = params.serviceFee || 0;
+            document.getElementById('rate-discount').value = params.discount || 0;
+            document.getElementById('rate-isAirBnb').value = params.isAirBnb ? 'true' : 'false';
+
+            document.getElementById('rate-modal').classList.remove('hidden');
+        } catch (e) {
+            console.error('Failed to load rate', e);
+        }
+    }
+
+    function closeRateModal() {
+        document.getElementById('rate-modal').classList.add('hidden');
+    }
+
+    async function saveRate(event) {
+        event.preventDefault();
+
+        const id = document.getElementById('rate-id').value;
+        const rate = {
+            id: id || `rate_${Date.now()}`,
+            name: document.getElementById('rate-name').value,
+            objectType: 'Resource',
+            type: 'Rate',
+            parameterBags: {
+                parameters: {
+                    id: 'parameters',
+                    name: 'Parameters',
+                    type: 'Parameters',
+                    parameters: {
+                        basePrice: { id: 'basePrice', name: 'Base Price', type: 'Float', value: parseFloat(document.getElementById('rate-basePrice').value) },
+                        serviceFee: { id: 'serviceFee', name: 'Service Fee', type: 'Float', value: parseFloat(document.getElementById('rate-serviceFee').value) },
+                        discount: { id: 'discount', name: 'Discount', type: 'Float', value: parseFloat(document.getElementById('rate-discount').value) },
+                        isAirBnb: { id: 'isAirBnb', name: 'Is AirBnb', type: 'Boolean', value: document.getElementById('rate-isAirBnb').value === 'true' }
+                    }
+                }
+            }
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `${API_BASE}/pillowdesk/rates/${id}` : `${API_BASE}/pillowdesk/rates`;
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': authToken
+                },
+                body: JSON.stringify(rate)
+            });
+
+            await handleResponse(response, 'Save Rate');
+            closeRateModal();
+            loadRates();
+            loadRoomsAndRates(); // Refresh selects
+        } catch (e) {
+            console.error('Failed to save rate', e);
+        }
+    }
+
+    async function deleteRate(id) {
+        if (!confirm('Are you sure you want to delete this rate?')) return;
+
+        try {
+            const response = await fetch(`${API_BASE}/pillowdesk/rates/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': authToken }
+            });
+
+            await handleResponse(response, 'Delete Rate');
+            loadRates();
+            loadRoomsAndRates(); // Refresh selects
+        } catch (e) {
+            console.error('Failed to delete rate', e);
+        }
     }
 
     async function loadStays() {

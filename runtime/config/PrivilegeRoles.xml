@@ -18,6 +18,7 @@
         </Privilege>
         <Privilege name="li.strolch.search.StrolchSearch" policy="DefaultPrivilege">
             <Allow>ch.eitchnet.pillowdesk.core.search.StaySearch</Allow>
+            <Allow>ch.eitchnet.pillowdesk.core.search.RateSearch</Allow>
         </Privilege>
     </Role>
 
