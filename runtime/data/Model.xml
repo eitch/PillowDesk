@@ -12,13 +12,21 @@
             <Parameter Id="discount" Name="Discount" Type="Float" Value="0.0"/>
         </ParameterBag>
     </Resource>
+    <Resource Id="rate_student" Name="Student Rate" Type="Rate">
+        <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
+            <Parameter Id="basePrice" Name="Base Price" Type="Float" Value="45.0"/>
+            <Parameter Id="isAirBnb" Name="Is AirBnb" Type="Boolean" Value="false"/>
+            <Parameter Id="serviceFee" Name="Service Fee" Type="Float" Value="0.0"/>
+            <Parameter Id="discount" Name="Discount" Type="Float" Value="0.0"/>
+        </ParameterBag>
+    </Resource>
 
-    <Resource Id="rate_airbnb" Name="AirBnb Rate" Type="Rate">
+    <Resource Id="rate_airbnb" Name="AirBnb Standard" Type="Rate">
         <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
             <Parameter Id="basePrice" Name="Base Price" Type="Float" Value="57.0"/>
             <Parameter Id="isAirBnb" Name="Is AirBnb" Type="Boolean" Value="true"/>
-            <Parameter Id="serviceFee" Name="Service Fee" Type="Float" Value="0.03"/>
-            <Parameter Id="discount" Name="Discount" Type="Float" Value="0.10"/>
+            <Parameter Id="serviceFee" Name="Service Fee" Type="Float" Value="3"/>
+            <Parameter Id="discount" Name="Discount" Type="Float" Value="10"/>
         </ParameterBag>
     </Resource>
 

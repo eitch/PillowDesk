@@ -476,10 +476,6 @@
                 <label>Guest Name</label>
                 <input type="text" id="stay-guestName" placeholder="Full name">
             </div>
-            <div class="form-group" style="grid-column: span 2; display: flex; align-items: center; gap: 0.5rem;">
-                <input type="checkbox" id="stay-isAirBnb" style="width: auto; margin: 0;" onchange="updateSummary()">
-                <label for="stay-isAirBnb" style="margin: 0;">Is Airbnb</label>
-            </div>
             <div class="form-group">
                 <label>Room</label>
                 <select id="stay-room" onchange="updateSummary()"></select>
@@ -973,7 +969,6 @@
             document.getElementById('modal-title').innerText = 'Edit Stay';
             document.getElementById('stay-id').value = stay.id;
             document.getElementById('stay-guestName').value = params.guestName || '';
-            document.getElementById('stay-isAirBnb').checked = params.isAirBnb === true;
             document.getElementById('stay-bookingId-group').classList.remove('hidden');
             document.getElementById('stay-bookingId').value = params.bookingId || '';
             document.getElementById('stay-checkIn').value = params.checkIn ? params.checkIn.substring(0, 10) : '';
@@ -993,7 +988,6 @@
         document.getElementById('modal-title').innerText = 'New Stay';
         document.getElementById('stay-id').value = '';
         document.getElementById('stay-guestName').value = '';
-        document.getElementById('stay-isAirBnb').checked = false;
         document.getElementById('stay-bookingId-group').classList.add('hidden');
         document.getElementById('stay-bookingId').value = '';
         document.getElementById('stay-checkIn').value = '';
@@ -1015,7 +1009,6 @@
         const checkOut = document.getElementById('stay-checkOut').value;
         const adults = document.getElementById('stay-adults').value;
         const children = document.getElementById('stay-children').value;
-        const isAirBnb = document.getElementById('stay-isAirBnb').checked;
         const room = document.getElementById('stay-room').value;
         const rate = document.getElementById('stay-rate').value;
 
@@ -1043,8 +1036,7 @@
                         checkIn: { id: 'checkIn', name: 'Check-In', type: 'Date', value: checkIn + 'T00:00:00Z' },
                         checkOut: { id: 'checkOut', name: 'Check-Out', type: 'Date', value: checkOut + 'T00:00:00Z' },
                         adults: { id: 'adults', name: 'Adults', type: 'Integer', value: parseInt(adults) || 1 },
-                        children: { id: 'children', name: 'Children', type: 'Integer', value: parseInt(children) || 0 },
-                        isAirBnb: { id: 'isAirBnb', name: 'Is AirBnb', type: 'Boolean', value: isAirBnb }
+                        children: { id: 'children', name: 'Children', type: 'Integer', value: parseInt(children) || 0 }
                     }
                 },
                 relations: {
@@ -1093,7 +1085,6 @@
         const checkOut = document.getElementById('stay-checkOut').value;
         const adults = document.getElementById('stay-adults').value;
         const children = document.getElementById('stay-children').value;
-        const isAirBnb = document.getElementById('stay-isAirBnb').checked;
         const room = document.getElementById('stay-room').value;
         const rate = document.getElementById('stay-rate').value;
 
@@ -1136,8 +1127,7 @@
                         checkIn: { id: 'checkIn', name: 'Check-In', type: 'Date', value: checkIn + 'T00:00:00Z' },
                         checkOut: { id: 'checkOut', name: 'Check-Out', type: 'Date', value: checkOut + 'T00:00:00Z' },
                         adults: { id: 'adults', name: 'Adults', type: 'Integer', value: parseInt(adults) },
-                        children: { id: 'children', name: 'Children', type: 'Integer', value: parseInt(children) },
-                        isAirBnb: { id: 'isAirBnb', name: 'Is AirBnb', type: 'Boolean', value: isAirBnb }
+                        children: { id: 'children', name: 'Children', type: 'Integer', value: parseInt(children) }
                     }
                 },
                 relations: {
