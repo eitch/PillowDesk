@@ -110,11 +110,7 @@ public class StayResource {
 		JsonObject jsonObject = JsonParser.parseString(data).getAsJsonObject();
 		Order stay = new OrderFromJsonVisitor().visit(jsonObject);
 
-		AddStayService service = new AddStayService();
-		AddStayArg arg = new AddStayArg();
-		arg.stay = stay;
-
-		ServiceResult result = getServiceHandler().doService(cert, service, arg);
+		ServiceResult result = getServiceHandler().doService(cert, new AddStayService(), new AddStayArg(stay));
 		return ResponseUtil.toResponse(result);
 	}
 
@@ -154,11 +150,7 @@ public class StayResource {
 		Order stay = new OrderFromJsonVisitor().visit(jsonObject);
 		stay.setId(id); // Ensure ID is set from path
 
-		UpdateStayService service = new UpdateStayService();
-		UpdateStayArg arg = new UpdateStayArg();
-		arg.stay = stay;
-
-		ServiceResult result = getServiceHandler().doService(cert, service, arg);
+		ServiceResult result = getServiceHandler().doService(cert, new UpdateStayService(), new UpdateStayArg(stay));
 		return ResponseUtil.toResponse(result);
 	}
 
@@ -169,12 +161,8 @@ public class StayResource {
 
 		Certificate cert = getCertificate(request);
 
-		RemoveStayService service = new RemoveStayService();
-		RemoveStayArg arg = new RemoveStayArg();
-		arg.type = TYPE_STAY;
-		arg.id = id;
-
-		ServiceResult result = getServiceHandler().doService(cert, service, arg);
+		ServiceResult result = getServiceHandler().doService(cert, new RemoveStayService(),
+				new RemoveStayArg(TYPE_STAY, id));
 		return ResponseUtil.toResponse(result);
 	}
 }

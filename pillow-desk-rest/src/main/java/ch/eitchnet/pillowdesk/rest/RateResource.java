@@ -83,11 +83,8 @@ public class RateResource {
 		JsonObject jsonObject = JsonParser.parseString(data).getAsJsonObject();
 		Resource rate = new ResourceFromJsonVisitor().visit(jsonObject);
 
-		AddRateService service = new AddRateService();
-		AddRateService.AddRateArg arg = new AddRateService.AddRateArg();
-		arg.rate = rate;
-
-		ServiceResult result = getServiceHandler().doService(cert, service, arg);
+		ServiceResult result = getServiceHandler().doService(cert, new AddRateService(),
+				new AddRateService.AddRateArg(rate));
 		return ResponseUtil.toResponse(result);
 	}
 
@@ -102,11 +99,8 @@ public class RateResource {
 		Resource rate = new ResourceFromJsonVisitor().visit(jsonObject);
 		rate.setId(id); // Ensure ID is set from path
 
-		UpdateRateService service = new UpdateRateService();
-		UpdateRateService.UpdateRateArg arg = new UpdateRateService.UpdateRateArg();
-		arg.rate = rate;
-
-		ServiceResult result = getServiceHandler().doService(cert, service, arg);
+		ServiceResult result = getServiceHandler().doService(cert, new UpdateRateService(),
+				new UpdateRateService.UpdateRateArg(rate));
 		return ResponseUtil.toResponse(result);
 	}
 
@@ -117,11 +111,8 @@ public class RateResource {
 
 		Certificate cert = getCertificate(request);
 
-		RemoveRateService service = new RemoveRateService();
-		RemoveRateService.RemoveRateArg arg = new RemoveRateService.RemoveRateArg();
-		arg.id = id;
-
-		ServiceResult result = getServiceHandler().doService(cert, service, arg);
+		ServiceResult result = getServiceHandler().doService(cert, new RemoveRateService(),
+				new RemoveRateService.RemoveRateArg(id));
 		return ResponseUtil.toResponse(result);
 	}
 }

@@ -65,11 +65,8 @@ public class RateOverrideResource {
 		JsonObject jsonObject = JsonParser.parseString(data).getAsJsonObject();
 		Resource rateOverride = new ResourceFromJsonVisitor().visit(jsonObject);
 
-		AddRateOverrideService service = new AddRateOverrideService();
-		AddRateOverrideService.AddRateOverrideArg arg = new AddRateOverrideService.AddRateOverrideArg();
-		arg.rateOverride = rateOverride;
-
-		ServiceResult result = getServiceHandler().doService(cert, service, arg);
+		ServiceResult result = getServiceHandler().doService(cert, new AddRateOverrideService(),
+				new AddRateOverrideService.AddRateOverrideArg(rateOverride));
 		return ResponseUtil.toResponse(result);
 	}
 
@@ -79,11 +76,8 @@ public class RateOverrideResource {
 	public Response removeRateOverride(@Context HttpServletRequest request, @PathParam("id") String id) {
 		Certificate cert = getCertificate(request);
 
-		RemoveRateOverrideService service = new RemoveRateOverrideService();
-		StringArgument arg = new StringArgument();
-		arg.value = id;
-
-		ServiceResult result = getServiceHandler().doService(cert, service, arg);
+		ServiceResult result = getServiceHandler().doService(cert, new RemoveRateOverrideService(),
+				new StringArgument(id));
 		return ResponseUtil.toResponse(result);
 	}
 }
