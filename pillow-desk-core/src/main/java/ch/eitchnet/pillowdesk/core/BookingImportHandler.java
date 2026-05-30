@@ -1,5 +1,6 @@
 package ch.eitchnet.pillowdesk.core;
 
+import ch.eitchnet.pillowdesk.core.policy.StayCalculatorPolicy;
 import ch.eitchnet.pillowdesk.core.policy.StayValidationPolicy;
 import li.strolch.agent.api.ComponentContainer;
 import li.strolch.agent.api.StrolchAgent;
@@ -146,9 +147,10 @@ public class BookingImportHandler extends StrolchComponent {
 
 		// Default relations
 		stay.getParameter(BAG_RELATIONS, PARAM_ROOM, true).setValue("room_1");
-		stay.getParameter(BAG_RELATIONS, PARAM_RATE, true).setValue(isAirBnb ? "rate_airbnb" : "rate_standard");
+		stay.getParameter(BAG_RELATIONS, PARAM_RATE, true).setValue(isAirBnb ? "rate_airbnb_refundable" : "rate_standard");
 
 		StayValidationPolicy.validate(tx, stay);
+		StayCalculatorPolicy.calculateAndFill(tx, stay);
 
 		if (exists)
 			tx.update(stay);
