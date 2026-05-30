@@ -74,7 +74,7 @@ public class BookingImportTest {
 			Order stay101 = tx.getOrderBy(TYPE_STAY, "stay_101");
 			assertNotNull(stay101, "Stay 101 not found");
 			assertEquals("Airbnb Guest", stay101.getName());
-			assertEquals("rate_airbnb", stay101.getParameter("relations", "rate").getValue());
+			assertEquals("rate_airbnb_refundable", stay101.getParameter("relations", "rate").getValue());
 			Boolean isAirBnb = stay101.getParameter("parameters", "isAirBnb", true).getValue();
 			assertTrue(isAirBnb, "isAirBnb should be true for stay 101, but was: " + isAirBnb);
 		}

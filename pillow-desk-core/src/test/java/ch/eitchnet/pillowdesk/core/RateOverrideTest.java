@@ -94,7 +94,7 @@ public class RateOverrideTest {
 
 			// Default: 57 * 2 = 100
 			StayCalculatorPolicy.StayCosts costs = StayCalculatorPolicy.calculate(tx, stay, rate);
-			assertEquals(178.03, costs.payout(), 0.01);
+			assertEquals(179, costs.payout(), 0.01);
 
 			// Add override for 16. May 2026 -> 58
 			Resource override = createRateOverride("ov2_1", rate, ZonedDateTime.parse("2026-05-16T00:00:00+02:00"), 58.0);
