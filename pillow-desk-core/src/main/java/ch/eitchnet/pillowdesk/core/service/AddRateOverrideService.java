@@ -12,6 +12,8 @@ public class AddRateOverrideService extends AbstractService<AddRateOverrideServi
 
 	public static class AddRateOverrideArg extends ServiceArgument {
 		public Resource rateOverride;
+		public AddRateOverrideArg() {}
+		public AddRateOverrideArg(Resource rateOverride) { this.rateOverride = rateOverride; }
 	}
 
 	@Override

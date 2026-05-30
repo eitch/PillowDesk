@@ -10,6 +10,8 @@ public class UpdateRateService extends AbstractService<UpdateRateService.UpdateR
 
 	public static class UpdateRateArg extends ServiceArgument {
 		public Resource rate;
+		public UpdateRateArg() {}
+		public UpdateRateArg(Resource rate) { this.rate = rate; }
 	}
 
 	@Override

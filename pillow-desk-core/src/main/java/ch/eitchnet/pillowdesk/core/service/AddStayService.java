@@ -13,6 +13,8 @@ public class AddStayService extends AbstractService<AddStayService.AddStayArg, S
 
 	public static class AddStayArg extends ServiceArgument {
 		public Order stay;
+		public AddStayArg() {}
+		public AddStayArg(Order stay) { this.stay = stay; }
 	}
 
 	@Override

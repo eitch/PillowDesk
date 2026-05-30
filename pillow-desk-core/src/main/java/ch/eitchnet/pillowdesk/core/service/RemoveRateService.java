@@ -12,6 +12,8 @@ public class RemoveRateService extends AbstractService<RemoveRateService.RemoveR
 
 	public static class RemoveRateArg extends ServiceArgument {
 		public String id;
+		public RemoveRateArg() {}
+		public RemoveRateArg(String id) { this.id = id; }
 	}
 
 	@Override

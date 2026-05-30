@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static ch.eitchnet.pillowdesk.core.model.ModelConstants.*;
@@ -137,17 +136,17 @@ public class BookingImportHandler extends StrolchComponent {
 		}
 
 		stay.setName(guestName);
-		stay.getParameter(BAG_PARAMETERS, PARAM_BOOKING_ID, true).setValue(bookingId);
-		stay.getParameter(BAG_PARAMETERS, PARAM_GUEST_NAME, true).setValue(guestName);
-		stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_IN, true).setValue(toDate(checkInDate));
-		stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_OUT, true).setValue(toDate(checkOutDate));
-		stay.getParameter(BAG_PARAMETERS, PARAM_ADULTS, true).setValue(adults);
-		stay.getParameter(BAG_PARAMETERS, PARAM_CHILDREN, true).setValue(children);
-		stay.getParameter(BAG_PARAMETERS, PARAM_IS_AIR_BNB, true).setValue(isAirBnb);
+		stay.setString(PARAM_BOOKING_ID, bookingId);
+		stay.setString(PARAM_GUEST_NAME, guestName);
+		stay.setDate(PARAM_CHECK_IN, checkInDate.atStartOfDay(ZoneId.systemDefault()));
+		stay.setDate(PARAM_CHECK_OUT, checkOutDate.atStartOfDay(ZoneId.systemDefault()));
+		stay.setInteger(PARAM_ADULTS, adults);
+		stay.setInteger(PARAM_CHILDREN, children);
+		stay.setBoolean(PARAM_IS_AIR_BNB, isAirBnb);
 
 		// Default relations
-		stay.getParameter(BAG_RELATIONS, PARAM_ROOM, true).setValue("room_1");
-		stay.getParameter(BAG_RELATIONS, PARAM_RATE, true).setValue(isAirBnb ? "rate_airbnb_refundable" : "rate_standard");
+		stay.setString(BAG_RELATIONS, PARAM_ROOM, "room_1");
+		stay.setString(BAG_RELATIONS, PARAM_RATE, isAirBnb ? "rate_airbnb_refundable" : "rate_standard");
 
 		StayValidationPolicy.validate(tx, stay);
 		StayCalculatorPolicy.calculateAndFill(tx, stay);
@@ -163,10 +162,6 @@ public class BookingImportHandler extends StrolchComponent {
 	private static DateTimeFormatter getFormatter(DateTimeFormatter dateFormatterLong,
 			DateTimeFormatter dateFormatterShort, String checkInStr) {
 		return checkInStr.length() == 10 ? dateFormatterLong : dateFormatterShort;
-	}
-
-	private Date toDate(LocalDate localDate) {
-		return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 	}
 
 	private void moveToDone(File file) {

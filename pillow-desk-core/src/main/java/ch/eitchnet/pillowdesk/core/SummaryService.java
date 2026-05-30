@@ -4,8 +4,6 @@ import ch.eitchnet.pillowdesk.core.policy.StayCalculatorPolicy;
 import ch.eitchnet.pillowdesk.core.search.StaySearch;
 import li.strolch.model.Order;
 import li.strolch.model.Resource;
-import li.strolch.model.parameter.BooleanParameter;
-import li.strolch.model.parameter.DateParameter;
 import li.strolch.persistence.api.StrolchTransaction;
 
 import java.time.LocalDate;
@@ -87,10 +85,8 @@ public class SummaryService {
 			Resource rate = tx.getResourceByRelation(stay, PARAM_RATE, true);
 			StayCalculatorPolicy.StayCosts costs = StayCalculatorPolicy.calculate(stay, rate);
 
-			DateParameter checkInParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_IN);
-			ZonedDateTime checkIn = checkInParam.getValueZdt();
-			DateParameter checkOutParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_OUT);
-			ZonedDateTime checkOut = checkOutParam.getValueZdt();
+			ZonedDateTime checkIn = stay.getDate(PARAM_CHECK_IN);
+			ZonedDateTime checkOut = stay.getDate(PARAM_CHECK_OUT);
 
 			// Increment bookings count for the starting month
 			YearMonth startMonth = YearMonth.from(checkIn);
@@ -140,13 +136,10 @@ public class SummaryService {
 			StayCalculatorPolicy.StayCosts costs = StayCalculatorPolicy.calculate(stay, rate);
 			Resource room = tx.getResourceByRelation(stay, PARAM_ROOM, false);
 			String roomName = room != null ? room.getName() : "Unknown";
-
 			boolean isAirBnb = isAirBnb(stay, rate);
 
-			DateParameter checkInParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_IN);
-			ZonedDateTime checkIn = checkInParam.getValueZdt();
-			DateParameter checkOutParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_OUT);
-			ZonedDateTime checkOut = checkOutParam.getValueZdt();
+			ZonedDateTime checkIn = stay.getDate(PARAM_CHECK_IN);
+			ZonedDateTime checkOut = stay.getDate(PARAM_CHECK_OUT);
 
 			long nightsInPeriod = 0;
 			double netRevenueInPeriod = 0;
@@ -174,10 +167,9 @@ public class SummaryService {
 
 
 	private boolean isAirBnb(Order stay, Resource rate) {
-		BooleanParameter isAirBnbParam = stay.getParameter(BAG_PARAMETERS, PARAM_IS_AIR_BNB, false);
-		if (isAirBnbParam == null)
-			isAirBnbParam = rate.getParameter(BAG_PARAMETERS, PARAM_IS_AIR_BNB, false);
-		return isAirBnbParam != null && isAirBnbParam.getValue();
+		if (stay.hasParameter(BAG_PARAMETERS, PARAM_IS_AIR_BNB))
+			return stay.getBoolean(PARAM_IS_AIR_BNB);
+		return rate.getBoolean(PARAM_IS_AIR_BNB);
 	}
 
 

@@ -8,35 +8,37 @@ import li.strolch.service.api.ServiceResult;
 
 public class RemoveStayService extends AbstractService<RemoveStayService.RemoveStayArg, ServiceResult> {
 
-    public static class RemoveStayArg extends ServiceArgument {
-        public String type;
-        public String id;
-    }
+	public static class RemoveStayArg extends ServiceArgument {
+		public String type;
+		public String id;
+		public RemoveStayArg() {}
+		public RemoveStayArg(String type, String id) { this.type = type; this.id = id; }
+	}
 
-    @Override
-    protected ServiceResult internalDoService(RemoveStayArg arg) {
-        if (arg.id == null || arg.type == null)
-            return ServiceResult.error("Stay ID or type is missing!");
+	@Override
+	protected ServiceResult internalDoService(RemoveStayArg arg) {
+		if (arg.id == null || arg.type == null)
+			return ServiceResult.error("Stay ID or type is missing!");
 
-        try (StrolchTransaction tx = openArgOrUserTx(arg)) {
-            Order stay = tx.getOrderBy(arg.type, arg.id);
-            if (stay == null)
-                return ServiceResult.error("Stay with ID " + arg.id + " and type " + arg.type + " does not exist!");
+		try (StrolchTransaction tx = openArgOrUserTx(arg)) {
+			Order stay = tx.getOrderBy(arg.type, arg.id);
+			if (stay == null)
+				return ServiceResult.error("Stay with ID " + arg.id + " and type " + arg.type + " does not exist!");
 
-            tx.remove(stay);
-            tx.commitOnClose();
-        }
+			tx.remove(stay);
+			tx.commitOnClose();
+		}
 
-        return ServiceResult.success();
-    }
+		return ServiceResult.success();
+	}
 
-    @Override
-    protected ServiceResult getResultInstance() {
-        return new ServiceResult();
-    }
+	@Override
+	protected ServiceResult getResultInstance() {
+		return new ServiceResult();
+	}
 
-    @Override
-    public RemoveStayArg getArgumentInstance() {
-        return new RemoveStayArg();
-    }
+	@Override
+	public RemoveStayArg getArgumentInstance() {
+		return new RemoveStayArg();
+	}
 }

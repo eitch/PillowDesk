@@ -23,22 +23,16 @@ public class StayCalculatorPolicy {
 	}
 
 	public static StayCosts calculate(StrolchTransaction tx, Order stay, Resource rate) {
-		DateParameter checkInParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_IN);
-		ZonedDateTime checkIn = checkInParam.getValueZdt();
-		DateParameter checkOutParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHECK_OUT);
-		ZonedDateTime checkOut = checkOutParam.getValueZdt();
+		ZonedDateTime checkIn = stay.getDate(PARAM_CHECK_IN);
+		ZonedDateTime checkOut = stay.getDate(PARAM_CHECK_OUT);
 
-		IntegerParameter adultsParam = stay.getParameter(BAG_PARAMETERS, PARAM_ADULTS, false);
-		int adults = adultsParam == null ? 2 : adultsParam.getValue();
-		IntegerParameter childrenParam = stay.getParameter(BAG_PARAMETERS, PARAM_CHILDREN, false);
-		int children = childrenParam == null ? 0 : childrenParam.getValue();
+		int adults = stay.getInteger(PARAM_ADULTS);
+		if (adults == 0) adults = 2;
+		int children = stay.getInteger(PARAM_CHILDREN);
 
-		FloatParameter basePriceParam = rate.getParameter(BAG_PARAMETERS, PARAM_BASE_PRICE);
-		double basePrice = basePriceParam.getValue();
-		FloatParameter serviceFeeParam = rate.getParameter(BAG_PARAMETERS, PARAM_SERVICE_FEE);
-		double serviceFee = serviceFeeParam.getValue();
-		FloatParameter discountParam = rate.getParameter(BAG_PARAMETERS, PARAM_DISCOUNT);
-		double discount = discountParam.getValue();
+		double basePrice = rate.getDouble(PARAM_BASE_PRICE);
+		double serviceFee = rate.getDouble(PARAM_SERVICE_FEE);
+		double discount = rate.getDouble(PARAM_DISCOUNT);
 
 		long nights = ChronoUnit.DAYS.between(checkIn.toLocalDate(), checkOut.toLocalDate());
 		if (nights < 0)
@@ -66,10 +60,8 @@ public class StayCalculatorPolicy {
 		}
 
 		if (isAirBnb) {
-			FloatParameter extraGuestRateParam = rate.getParameter(BAG_PARAMETERS, PARAM_EXTRA_GUEST_RATE, false);
-			double extraGuestRate = extraGuestRateParam == null ? 0.0 : extraGuestRateParam.getValue();
-			FloatParameter vatParam = rate.getParameter(BAG_PARAMETERS, PARAM_VAT, false);
-			double vatPercent = vatParam == null ? 0.0 : vatParam.getValue();
+			double extraGuestRate = rate.getDouble(PARAM_EXTRA_GUEST_RATE);
+			double vatPercent = rate.getDouble(PARAM_VAT);
 
 			int guests = adults + children;
 			double extraGuests = Math.max(0, guests - 1);
@@ -104,20 +96,7 @@ public class StayCalculatorPolicy {
 		Resource rate = tx.getResourceByRelation(stay, PARAM_RATE, true);
 		StayCosts costs = calculate(tx, stay, rate);
 
-		FloatParameter totalRevenueP = stay.getParameter(BAG_PARAMETERS, PARAM_TOTAL_REVENUE, false);
-		if (totalRevenueP == null) {
-			totalRevenueP = new FloatParameter(PARAM_TOTAL_REVENUE, "Total Revenue", costs.totalGross);
-			stay.addParameter(BAG_PARAMETERS, totalRevenueP);
-		} else {
-			totalRevenueP.setValue(costs.payout());
-		}
-
-		FloatParameter payoutP = stay.getParameter(BAG_PARAMETERS, PARAM_PAYOUT, false);
-		if (payoutP == null) {
-			payoutP = new FloatParameter(PARAM_PAYOUT, "Payout", costs.payout());
-			stay.addParameter(BAG_PARAMETERS, payoutP);
-		} else {
-			payoutP.setValue(costs.payout());
-		}
+		stay.setDouble(PARAM_TOTAL_REVENUE, costs.totalGross());
+		stay.setDouble(PARAM_PAYOUT, costs.payout());
 	}
 }
