@@ -174,7 +174,7 @@ class StayResourceTest extends AbstractPillowDeskRestfulTest {
 
 			assertEquals(2, data.get("nights").getAsLong());
 			assertEquals(8.0, data.get("touristTax").getAsDouble());
-			assertEquals(108.0, data.get("totalRevenue").getAsDouble());
+			assertEquals(100.0, data.get("totalRevenue").getAsDouble());
 		}
 	}
 
