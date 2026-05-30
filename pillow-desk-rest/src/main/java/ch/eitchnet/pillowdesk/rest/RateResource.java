@@ -67,7 +67,7 @@ public class RateResource {
 		try (StrolchTransaction tx = openTx(cert)) {
 			Resource rate = tx.getResourceBy(TYPE_RATE, id);
 			if (rate == null) {
-				return Response.status(Response.Status.NOT_FOUND).build();
+				return ResponseUtil.toResponse("data", new JsonObject());
 			}
 
 			return ResponseUtil.toResponse("data", rate.accept(new StrolchRootElementToJsonVisitor()));
