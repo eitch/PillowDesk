@@ -8,6 +8,7 @@ import li.strolch.model.parameter.BooleanParameter;
 import li.strolch.model.parameter.DateParameter;
 import li.strolch.model.parameter.FloatParameter;
 import li.strolch.model.parameter.IntegerParameter;
+import li.strolch.model.parameter.StringParameter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ import java.util.Date;
 import static ch.eitchnet.pillowdesk.core.model.ModelConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class StayCalculatorTest {
+public class StayCalculatorTest {
 
 	private static final Logger log = LoggerFactory.getLogger(StayCalculatorTest.class);
 
@@ -75,7 +76,7 @@ class StayCalculatorTest {
 
 	@Test
 	public void testAirBnbRateRefundable2() {
-		// AirBnb Non-Refundable: 2 adults, 1 nights at 57 CHF.
+		// AirBnb Non-Refundable: 2 adults, 2 nights at 57 CHF
 
 		Resource rate = airBnbRateRefundable;
 		log.info("Testing {} calculation:\n{}", rate.getId(), rate.toXmlString());
@@ -159,8 +160,8 @@ class StayCalculatorTest {
 		assertEquals(83.50, costs.payout(), 0.01);
 	}
 
-	private static Resource createRate(String id, double basePrice, double extraGuestRate, boolean isAirBnb,
-			double serviceFee, double discount, double vat) {
+	public static Resource createRate(String id, double basePrice, double extraGuestRate, boolean isAirBnb, double serviceFee,
+			double discount, double vat) {
 		Resource rate = new Resource(id, "Rate", TYPE_RATE);
 		ParameterBag bag = new ParameterBag(BAG_PARAMETERS, "Parameters", "Parameters");
 		bag.addParameter(new FloatParameter(PARAM_BASE_PRICE, "Base Price", basePrice));
@@ -173,14 +174,40 @@ class StayCalculatorTest {
 		return rate;
 	}
 
-	private static Order createStay(ZonedDateTime checkIn, ZonedDateTime checkOut, int adults, int children) {
-		Order stay = new Order("stay", "Stay", TYPE_STAY);
+	public static Order createStay(ZonedDateTime checkIn, ZonedDateTime checkOut, int adults, int children) {
+		return createStay("stay", checkIn, checkOut, adults, children, null);
+	}
+
+	public static Order createStay(String id, ZonedDateTime checkIn, ZonedDateTime checkOut, int adults, int children,
+			String rateId) {
+		Order stay = new Order(id, "Stay", TYPE_STAY);
 		ParameterBag bag = new ParameterBag(BAG_PARAMETERS, "Parameters", "Parameters");
 		bag.addParameter(new DateParameter(PARAM_CHECK_IN, "Check-In", Date.from(checkIn.toInstant())));
 		bag.addParameter(new DateParameter(PARAM_CHECK_OUT, "Check-Out", Date.from(checkOut.toInstant())));
 		bag.addParameter(new IntegerParameter(PARAM_ADULTS, "Adults", adults));
 		bag.addParameter(new IntegerParameter(PARAM_CHILDREN, "Children", children));
 		stay.addParameterBag(bag);
+
+		if (rateId != null) {
+			ParameterBag relBag = new ParameterBag(BAG_RELATIONS, "Relations", "Relations");
+			relBag.addParameter(new StringParameter(PARAM_RATE, "Rate", rateId));
+			stay.addParameterBag(relBag);
+		}
+
 		return stay;
+	}
+
+	public static Resource createRateOverride(String id, Resource rate, ZonedDateTime date, double value) {
+		Resource override = new Resource(id, "Override", TYPE_RATE_OVERRIDE);
+		ParameterBag bag = new ParameterBag(BAG_PARAMETERS, "Parameters", "Parameters");
+		bag.addParameter(new DateParameter(PARAM_DATE, "Date", Date.from(date.toInstant())));
+		bag.addParameter(new FloatParameter(PARAM_VALUE, "Value", value));
+		override.addParameterBag(bag);
+
+		ParameterBag relBag = new ParameterBag(BAG_RELATIONS, "Relations", "Relations");
+		relBag.addParameter(new StringParameter(PARAM_RATE, "Rate", rate.getId()));
+		override.addParameterBag(relBag);
+
+		return override;
 	}
 }
