@@ -5,12 +5,15 @@ public class ModelConstants {
 	public static final String TYPE_STAY = "Stay";
 	public static final String TYPE_ROOM = "Room";
 	public static final String TYPE_RATE = "Rate";
+	public static final String TYPE_RATE_OVERRIDE = "RateOverride";
 
 	public static final String BAG_PARAMETERS = "parameters";
 	public static final String BAG_RELATIONS = "relations";
 
 	public static final String PARAM_CHECK_IN = "checkIn";
 	public static final String PARAM_CHECK_OUT = "checkOut";
+	public static final String PARAM_DATE = "date";
+	public static final String PARAM_VALUE = "value";
 	public static final String PARAM_GUEST_NAME = "guestName";
 	public static final String PARAM_BOOKING_ID = "bookingId";
 	public static final String PARAM_ADULTS = "adults";
