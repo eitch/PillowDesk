@@ -19,6 +19,7 @@ public class ModelConstants {
 	public static final String PARAM_ROOM = "room";
 	public static final String PARAM_RATE = "rate";
 	public static final String PARAM_TOTAL_REVENUE = "totalRevenue";
+	public static final String PARAM_PAYOUT = "payout";
 
 	public static final String PARAM_BASE_PRICE = "basePrice";
 	public static final String PARAM_EXTRA_GUEST_RATE = "extraGuestRate";

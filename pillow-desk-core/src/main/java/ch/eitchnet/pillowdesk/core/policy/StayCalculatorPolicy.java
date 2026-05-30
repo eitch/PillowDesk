@@ -14,8 +14,8 @@ import static ch.eitchnet.pillowdesk.core.model.ModelConstants.*;
 
 public class StayCalculatorPolicy {
 
-	public record StayCosts(long nights, double touristTax, double accommodationGross, double accommodationNet,
-	                        double totalGross, double payout) {
+	public record StayCosts(long nights, double touristTax, double accommodationGross, double totalGross,
+	                        double payout) {
 	}
 
 	public static StayCosts calculate(Order stay, Resource rate) {
@@ -70,9 +70,9 @@ public class StayCalculatorPolicy {
 			payout = accommodationNet;
 		}
 
-		double totalGross = accommodationGross + touristTax;
+		double totalGross = accommodationGross;
 
-		return new StayCosts(nights, touristTax, accommodationGross, accommodationNet, totalGross, payout);
+		return new StayCosts(nights, touristTax, accommodationGross, totalGross, payout);
 	}
 
 	private static double round2(double value) {
@@ -83,12 +83,20 @@ public class StayCalculatorPolicy {
 		Resource rate = tx.getResourceByRelation(stay, PARAM_RATE, true);
 		StayCosts costs = calculate(stay, rate);
 
-		FloatParameter totalRevenueParam = stay.getParameter(BAG_PARAMETERS, PARAM_TOTAL_REVENUE, false);
-		if (totalRevenueParam == null) {
-			totalRevenueParam = new FloatParameter(PARAM_TOTAL_REVENUE, "Total Revenue", costs.payout());
-			stay.addParameter(BAG_PARAMETERS, totalRevenueParam);
+		FloatParameter totalRevenueP = stay.getParameter(BAG_PARAMETERS, PARAM_TOTAL_REVENUE, false);
+		if (totalRevenueP == null) {
+			totalRevenueP = new FloatParameter(PARAM_TOTAL_REVENUE, "Total Revenue", costs.totalGross);
+			stay.addParameter(BAG_PARAMETERS, totalRevenueP);
 		} else {
-			totalRevenueParam.setValue(costs.payout());
+			totalRevenueP.setValue(costs.payout());
+		}
+
+		FloatParameter payoutP = stay.getParameter(BAG_PARAMETERS, PARAM_PAYOUT, false);
+		if (payoutP == null) {
+			payoutP = new FloatParameter(PARAM_PAYOUT, "Payout", costs.payout());
+			stay.addParameter(BAG_PARAMETERS, payoutP);
+		} else {
+			payoutP.setValue(costs.payout());
 		}
 	}
 }
