@@ -5,6 +5,7 @@ import li.strolch.model.Order;
 import li.strolch.model.ParameterBag;
 import li.strolch.model.StrolchModelConstants;
 import li.strolch.model.parameter.DateParameter;
+import li.strolch.model.parameter.IntegerParameter;
 import li.strolch.model.parameter.StringParameter;
 import li.strolch.persistence.api.StrolchTransaction;
 import li.strolch.privilege.model.Certificate;
@@ -55,6 +56,8 @@ public class StayServiceTest {
 		// 1. Add
 		Order stay = new Order("stay1", "Stay 1", TYPE_STAY);
 		ParameterBag bag = new ParameterBag(BAG_PARAMETERS, "Parameters", "Parameters");
+		bag.setString(PARAM_GUEST_NAME, stay.getName());
+		bag.addParameter(new IntegerParameter(PARAM_ADULTS, "Adults", 1));
 		bag.addParameter(new DateParameter(PARAM_CHECK_IN, "Check-In", new Date()));
 		bag.addParameter(
 				new DateParameter(PARAM_CHECK_OUT, "Check-Out", new Date(System.currentTimeMillis() + 86400000)));
