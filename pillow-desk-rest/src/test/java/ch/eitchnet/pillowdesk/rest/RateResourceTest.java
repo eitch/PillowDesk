@@ -107,13 +107,16 @@ class RateResourceTest extends AbstractPillowDeskRestfulTest {
 			assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 		}
 
-		// 6. Get again (should be 404)
+		// 6. Get again (should be empty object, not 404)
 		try (Response response = target()
 				.path("pillowdesk/rates/rate_test")
 				.request(MediaType.APPLICATION_JSON)
 				.header("Authorization", authToken)
 				.get()) {
-			assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+			assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+			JsonObject result = JsonParser.parseString(response.readEntity(String.class)).getAsJsonObject();
+			JsonObject data = result.get("data").getAsJsonObject();
+			assertEquals(0, data.size());
 		}
 	}
 }

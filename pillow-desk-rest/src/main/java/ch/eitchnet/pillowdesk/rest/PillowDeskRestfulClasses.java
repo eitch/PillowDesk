@@ -13,6 +13,7 @@ public class PillowDeskRestfulClasses {
         restfulClasses.add(SummaryResource.class);
         restfulClasses.add(RoomResource.class);
         restfulClasses.add(RateResource.class);
+        restfulClasses.add(RateOverrideResource.class);
         return restfulClasses;
     }
 

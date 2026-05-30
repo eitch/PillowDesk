@@ -221,6 +221,9 @@
             justify-content: center;
             backdrop-filter: blur(8px);
         }
+        #info-modal {
+            z-index: 200;
+        }
         .modal-content {
             background-color: var(--card-bg);
             padding: 3rem;
@@ -578,6 +581,47 @@
     </div>
 </div>
 
+<!-- Rate Overrides Modal -->
+<div id="rate-overrides-modal" class="modal hidden">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <h2 id="rate-overrides-title">Rate Overrides</h2>
+            <button class="btn btn-secondary" style="padding: 8px;" onclick="closeRateOverridesModal()">✕</button>
+        </div>
+        
+        <div class="search-bar">
+            <input type="hidden" id="override-rate-id">
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="override-date">
+            </div>
+            <div class="form-group">
+                <label>Price (CHF)</label>
+                <input type="number" step="0.01" id="override-value">
+            </div>
+            <button class="btn btn-primary" onclick="addRateOverride()">Add Override</button>
+        </div>
+
+        <div style="max-height: 400px; overflow-y: auto;">
+            <table id="overrides-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="overrides-body">
+                    <!-- Loaded via JS -->
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer" style="margin-top: 2rem; text-align: right;">
+            <button class="btn btn-primary" onclick="closeRateOverridesModal()">Close</button>
+        </div>
+    </div>
+</div>
+
 <script>
     function showInfo(title, message) {
         document.getElementById('info-title').innerText = title || 'Information';
@@ -770,6 +814,7 @@
                 <td class="actions">
                     <div style="display:flex; gap:0.5rem">
                         <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="openEditRateModal('${rate.id}')">Edit</button>
+                        <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="openRateOverridesModal('${rate.id}', '${rate.name}')">Overrides</button>
                         <button class="btn btn-danger" style="padding: 8px 16px; font-size: 0.85rem;" onclick="deleteRate('${rate.id}')">Delete</button>
                     </div>
                 </td>
@@ -881,6 +926,114 @@
             loadRoomsAndRates(); // Refresh selects
         } catch (e) {
             console.error('Failed to delete rate', e);
+        }
+    }
+
+    async function openRateOverridesModal(rateId, rateName) {
+        document.getElementById('rate-overrides-title').innerText = `Rate Overrides for ${rateName}`;
+        document.getElementById('override-rate-id').value = rateId;
+        document.getElementById('override-date').value = '';
+        document.getElementById('override-value').value = '';
+        document.getElementById('rate-overrides-modal').classList.remove('hidden');
+        loadRateOverrides(rateId);
+    }
+
+    function closeRateOverridesModal() {
+        document.getElementById('rate-overrides-modal').classList.add('hidden');
+    }
+
+    async function loadRateOverrides(rateId) {
+        try {
+            const response = await fetch(`${API_BASE}/pillowdesk/rate-overrides?rateId=${rateId}`, {
+                headers: { 'Authorization': authToken }
+            });
+            const result = await handleResponse(response, 'Load Overrides');
+            renderRateOverrides(result.data);
+        } catch (e) {
+            console.error('Failed to load overrides', e);
+        }
+    }
+
+    function renderRateOverrides(overrides) {
+        const tbody = document.getElementById('overrides-body');
+        tbody.innerHTML = '';
+        overrides.sort((a, b) => {
+            const da = a.parameterBags.parameters.parameters.date.value;
+            const db = b.parameterBags.parameters.parameters.date.value;
+            return da.localeCompare(db);
+        }).forEach(ov => {
+            const params = ov.parameterBags.parameters.parameters;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${params.date.value.substring(0, 10)}</td>
+                <td style="font-weight:700">CHF ${params.value.value.toFixed(2)}</td>
+                <td>
+                    <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.8rem;" onclick="deleteRateOverride('${ov.id}')">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function addRateOverride() {
+        const rateId = document.getElementById('override-rate-id').value;
+        const date = document.getElementById('override-date').value;
+        const val = document.getElementById('override-value').value;
+
+        if (!date || !val) {
+            showInfo('Missing Data', 'Please provide both date and price.');
+            return;
+        }
+
+        const override = {
+            id: `override_${rateId}_${date}`,
+            name: `Override ${rateId} ${date}`,
+            type: 'RateOverride',
+            objectType: 'Resource',
+            parameterBags: {
+                parameters: {
+                    id: 'parameters', name: 'Parameters', type: 'Parameters',
+                    parameters: {
+                        date: { id: 'date', name: 'Date', type: 'Date', value: date + 'T00:00:00Z' },
+                        value: { id: 'value', name: 'Price', type: 'Float', value: parseFloat(val) }
+                    }
+                },
+                relations: {
+                    id: 'relations', name: 'Relations', type: 'Relations',
+                    parameters: {
+                        rate: { id: 'rate', name: 'Rate', type: 'String', value: rateId, interpretation: 'Resource-Ref', uom: 'Rate' }
+                    }
+                }
+            }
+        };
+
+        try {
+            const response = await fetch(`${API_BASE}/pillowdesk/rate-overrides`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': authToken
+                },
+                body: JSON.stringify(override)
+            });
+            await handleResponse(response, 'Add Override');
+            loadRateOverrides(rateId);
+        } catch (e) {
+            console.error('Failed to add override', e);
+        }
+    }
+
+    async function deleteRateOverride(id) {
+        const rateId = document.getElementById('override-rate-id').value;
+        try {
+            const response = await fetch(`${API_BASE}/pillowdesk/rate-overrides/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': authToken }
+            });
+            await handleResponse(response, 'Delete Override');
+            loadRateOverrides(rateId);
+        } catch (e) {
+            console.error('Failed to delete override', e);
         }
     }
 
