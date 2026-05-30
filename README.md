@@ -5,12 +5,14 @@ PillowDesk is a lightweight booking and stay management system built on the [Str
 ## 🚀 Features
 
 - **Stay Management**: Complete lifecycle management of guest stays (Add, Edit, Remove).
+- **Rate Overrides**: Define date-specific rates that override the default base price for any given day. Supports managing overrides across multiple rate types.
 - **Guest Search**: Filter stays by guest name, check-in, and check-out dates.
 - **Room & Rate Relations**: Associate stays with specific rooms and pricing rates.
 - **Reporting & Analytics**:
   - **Daily & Monthly Summary**: Detailed breakdown of pro-rated daily revenue and tourist taxes.
   - **Yearly Performance**: Monthly overview of revenue, taxes, and occupancy rates.
   - **Booking Distribution**: Tracks Airbnb vs. Direct bookings.
+- **Dynamic Pricing**: Stay cost calculation automatically incorporates rate overrides for specific dates, allowing for seasonal or event-based pricing adjustments.
 - **Authentication**: Secure access powered by Strolch's privilege system.
 
 ## 🛠️ Tech Stack
