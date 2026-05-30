@@ -11,10 +11,12 @@
 
     <Resource Id="Rate" Name="Rate Template" Type="Template">
         <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
-            <Parameter Id="basePrice" Name="Base Price" Type="Float" Value="0.0"/>
-            <Parameter Id="isAirBnb" Name="Is AirBnb" Type="Boolean" Value="false"/>
             <Parameter Id="serviceFee" Name="Service Fee" Type="Float" Value="0.0"/>
+            <Parameter Id="vat" Name="VAT" Type="Float" Value="0.0"/>
+            <Parameter Id="isAirBnb" Name="Is AirBnb" Type="Boolean" Value="false"/>
             <Parameter Id="discount" Name="Discount" Type="Float" Value="0.0"/>
+            <Parameter Id="extraGuestRate" Name="Extra Guest Rate" Type="Float" Value="0.0"/>
+            <Parameter Id="basePrice" Name="Base Price" Type="Float" Value="0.0"/>
         </ParameterBag>
     </Resource>
 
