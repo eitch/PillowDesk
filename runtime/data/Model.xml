@@ -35,7 +35,16 @@
             <Parameter Id="basePrice" Name="Base Price" Type="Float" Value="57.0"/>
         </ParameterBag>
     </Resource>
-    <Resource Id="rate_airbnb-non-refundable" Name="AirBnb Non-Refundable" Type="Rate">
+    <Resource Id="rate_airbnb_refundable-ov1" Name="Override" Type="RateOverride">
+        <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
+            <Parameter Id="date" Name="Date" Type="Date" Value="2026-05-16T00:00:00+02:00"/>
+            <Parameter Id="value" Name="Value" Type="Float" Value="58.0"/>
+        </ParameterBag>
+        <ParameterBag Id="relations" Name="Relations" Type="Relations">
+            <Parameter Id="rate" Name="Rate" Type="StringList" Value="rate_airbnb_refundable"/>
+        </ParameterBag>
+    </Resource>
+    <Resource Id="rate_airbnb_non_refundable" Name="AirBnb Non-Refundable" Type="Rate">
         <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
             <Parameter Id="serviceFee" Name="Service Fee" Type="Float" Value="3.0"/>
             <Parameter Id="vat" Name="VAT" Type="Float" Value="8.1"/>
@@ -43,6 +52,15 @@
             <Parameter Id="discount" Name="Discount" Type="Float" Value="10.0"/>
             <Parameter Id="extraGuestRate" Name="Extra Guest Rate" Type="Float" Value="35.0"/>
             <Parameter Id="basePrice" Name="Base Price" Type="Float" Value="57.0"/>
+        </ParameterBag>
+    </Resource>
+    <Resource Id="rate_airbnb_non_refundable-ov1" Name="Override" Type="RateOverride">
+        <ParameterBag Id="parameters" Name="Parameters" Type="Parameters">
+            <Parameter Id="date" Name="Date" Type="Date" Value="2026-05-16T00:00:00+02:00"/>
+            <Parameter Id="value" Name="Value" Type="Float" Value="58.0"/>
+        </ParameterBag>
+        <ParameterBag Id="relations" Name="Relations" Type="Relations">
+            <Parameter Id="rate" Name="Rate" Type="StringList" Value="rate_airbnb_non_refundable"/>
         </ParameterBag>
     </Resource>
 
