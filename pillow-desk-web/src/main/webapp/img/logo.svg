@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 400" role="img" aria-labelledby="title desc">
+  <title id="title">PillowDesk logo</title>
+  <desc id="desc">Vector recreation of the PillowDesk B&amp;B booking logo with pillow, calendar, desk, and slogan.</desc>
+
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3729f4"/>
+      <stop offset="1" stop-color="#11164f"/>
+    </linearGradient>
+    <linearGradient id="blue2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#10164e"/>
+      <stop offset="1" stop-color="#362ff3"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffc93b"/>
+      <stop offset="1" stop-color="#f2a900"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#10164e" flood-opacity=".18"/>
+    </filter>
+    <style>
+      .navy{fill:#10164e}.blue{fill:url(#blue)}.lav{stroke:#c7bff6}.line{fill:none;stroke-linecap:round;stroke-linejoin:round}.txt{font-family:Montserrat, Avenir Next, Arial, sans-serif;font-weight:800;letter-spacing:-3px}.tag{font-family:Montserrat, Avenir Next, Arial, sans-serif;font-weight:700;letter-spacing:18px}.bb{font-family:Montserrat, Avenir Next, Arial, sans-serif;font-weight:800;letter-spacing:8px}
+    </style>
+  </defs>
+
+  <!-- Main icon -->
+  <g filter="url(#softShadow)">
+    <!-- pillow -->
+    <path d="M40 18c24-20 48 11 82 10 54-9 110-9 164 0 35 1 58-30 82-10 21 18-9 44-8 82v79h-42v-55c1-32 29-72 7-86-14-9-37 13-66 11-42-8-99-8-142 0-29 2-52-20-66-11-22 14 6 54 7 86v92c-19 8-34 9-47 2V100c1-38-28-64-7-82z" fill="url(#blue)"/>
+    <path d="M84 98c58-20 144-21 220 2 18 47 3 95-4 138-78 23-156 21-231 0 3-55 5-100 15-140z" fill="#fff"/>
+    <path d="M116 169c29-9 48-11 75-8" class="line lav" stroke-width="8"/>
+
+    <!-- calendar -->
+    <g transform="translate(200 90)">
+      <rect x="0" y="0" width="184" height="150" rx="17" fill="#fff" stroke="url(#blue)" stroke-width="6"/>
+      <path d="M0 33h184" stroke="url(#blue)" stroke-width="6"/>
+      <rect x="37" y="-25" width="17" height="46" rx="8" class="navy"/>
+      <rect x="132" y="-25" width="17" height="46" rx="8" class="navy"/>
+      <path d="M28 90l28 28 54-62" class="line" stroke="#25aa82" stroke-width="14"/>
+      <path d="M108 90h42M108 115h36" class="line lav" stroke-width="8"/>
+    </g>
+
+    <!-- desk -->
+    <g transform="translate(0 252)">
+      <rect x="0" y="0" width="426" height="31" rx="7" fill="#182061" stroke="#10164e" stroke-width="5"/>
+      <rect x="24" y="31" width="40" height="104" rx="5" fill="#182061" stroke="#10164e" stroke-width="5"/>
+      <rect x="368" y="31" width="40" height="104" rx="5" fill="#182061" stroke="#10164e" stroke-width="5"/>
+      <rect x="64" y="31" width="304" height="88" fill="#fff"/>
+      <path d="M87 72h52M290 72h52" class="line lav" stroke-width="8"/>
+      <text x="154" y="96" class="bb navy" font-size="48">B&amp;B</text>
+    </g>
+
+    <!-- service bell -->
+    <g transform="translate(45 186)">
+      <path d="M18 37c4-26 27-40 50-40s46 14 50 40z" fill="url(#gold)"/>
+      <path d="M42 0a11 11 0 1 0 22 0a11 11 0 1 0-22 0" fill="url(#gold)"/>
+      <path d="M0 50h134" class="line" stroke="#10164e" stroke-width="8"/>
+      <path d="M18 37h100" class="line" stroke="#f2a900" stroke-width="5"/>
+    </g>
+  </g>
+
+  <!-- Wordmark -->
+  <g transform="translate(500 220)">
+    <text class="txt" font-size="160">
+      <tspan class="navy">Pillow</tspan><tspan fill="url(#blue2)">Desk</tspan>
+    </text>
+    <text x="5" y="83" class="tag" font-size="40" fill="#646486">MANAGE. BOOK. RELAX.</text>
+  </g>
+</svg>
