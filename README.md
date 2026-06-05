@@ -53,6 +53,22 @@ For development, the project is configured with a local development profile that
 
 - **Website**: [https://pillow-desk.eitchnet.ch](https://pillow-desk.eitchnet.ch)
 
+## 🐳 Running with Docker
+
+To run PillowDesk using Docker, follow these steps:
+
+1.  Build the project from the root:
+    ```bash
+    mvn clean install -DskipTests
+    ```
+2.  Start the application using Docker Compose:
+    ```bash
+    docker compose up --build
+    ```
+3.  The application will be available at `http://localhost:8080`.
+
+The Docker configuration uses the `runtime` directory for configuration and data. Any changes made to the `runtime` directory on your host will be reflected in the container.
+
 ## 📄 License
 
 PillowDesk is licensed under the [GNU Affero General Public License v3.0](LICENSE).

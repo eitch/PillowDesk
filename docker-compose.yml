@@ -1,0 +1,12 @@
+services:
+  pillow-desk:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./runtime:/pillow-desk-runtime
+    environment:
+      - STROLCH_ENVIRONMENT=dev
+      - STROLCH_RUNTIME_PATH=/pillow-desk-runtime
