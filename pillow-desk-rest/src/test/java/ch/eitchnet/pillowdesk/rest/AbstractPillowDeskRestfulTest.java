@@ -43,7 +43,6 @@ abstract class AbstractPillowDeskRestfulTest extends JerseyTest {
 
 	public static final String AUTHENTICATION_PATH = "strolch/authentication";
 
-	protected static final Logger logger = LoggerFactory.getLogger(AbstractPillowDeskRestfulTest.class);
 	private static final String RUNTIME_PATH = "target/PillowDeskRestfulTest/";
 	private static final String CONFIG_SRC = "src/test/resources/runtime";
 	protected static RuntimeMock runtimeMock;
