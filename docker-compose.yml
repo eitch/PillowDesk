@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   app:
-    image: repo.strolch.li/pillow-desk:latest
+    image: repo.strolch.li/docker/pillow-desk:latest
     container_name: pillow-desk
     hostname: app
     ports:
