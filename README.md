@@ -53,13 +53,13 @@ For development, the project is configured with a local development profile that
 
 - **Website**: [https://pillow-desk.eitchnet.ch](https://pillow-desk.eitchnet.ch)
 
-## 🐳 Running with Docker
+## 🐳 Running with Docker for DEV
 
 To run PillowDesk using Docker, follow these steps:
 
 1.  Build the project from the root:
     ```bash
-    mvn clean install -DskipTests
+    mvn clean package -DskipTests
     ```
 2.  Start the application using Docker Compose:
     ```bash
@@ -83,6 +83,33 @@ docker push "${TAG_PATH}"
 But the following script will build and push the image to the specified repository and clean up the local images afterwards:
 ```bash
 ./build-docker-image.sh -p -c -r repo.strolch.li
+```
+
+## Running with Docker for PROD
+
+Create the following directories on your host:
+```bash
+mkdir pillow-desk
+cd pillow-desk
+mkdir tomcat-logs
+mkdir runtime
+mkdir runtime/{config,data,temp}
+```
+
+Copy the [docker-compose.yml](docker-compose.yml) to your host.
+
+Copy the following files from the `runtime` directory to the `runtime` directory:
+- `config`
+- `data`
+- `temp`
+
+Generate random values for `secretKey` and `secretSalt` in the following file:
+- runtime/config/PrivilegeConfig.xml
+
+Then, start the application using Docker Compose:
+```bash
+docker compose up -d
+docker compose logs -f
 ```
 
 ## 📄 License

@@ -108,7 +108,7 @@ if ! [[ -d "${TARGET_PATH}" ]]; then
 fi
 
 info "Building image..."
-docker image build --load --pull -f Dockerfile --tag "${DOCKER_TAG}" . || fail "Could not build docker image"
+docker image build --no-cache --load --pull -f Dockerfile --tag "${DOCKER_TAG}" . || fail "Could not build docker image"
 info
 
 TAG_PATH="${REGISTRY}/docker/${DOCKER_TAG}"

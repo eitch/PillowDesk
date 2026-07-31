@@ -22,5 +22,6 @@ RUN chown -R $UID:$GID /usr/local/tomcat/webapps/ROOT
 USER $UID
 
 EXPOSE 8080
+ENV STROLCH_RUNTIME_PATH=/pillow-desk-runtime
 ENV CATALINA_OPTS="$CATALINA_OPTS --enable-native-access=ALL-UNNAMED"
 CMD ["catalina.sh", "run"]
