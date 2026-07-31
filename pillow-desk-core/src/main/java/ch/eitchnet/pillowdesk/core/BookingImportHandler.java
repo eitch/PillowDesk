@@ -54,7 +54,7 @@ public class BookingImportHandler extends StrolchComponent {
 
 	public void importFiles(Certificate cert) {
 		ComponentConfiguration configuration = getConfiguration();
-		File importPath = configuration.getDataDir(PROP_IMPORT_PATH, DEFAULT_IMPORT_PATH, true);
+		File importPath = configuration.getDataDir(PROP_IMPORT_PATH, DEFAULT_IMPORT_PATH, false);
 		if (!importPath.exists() || !importPath.isDirectory()) {
 			logger.warn("Import path {} does not exist or is not a directory.", importPath.getAbsolutePath());
 			return;
