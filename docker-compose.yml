@@ -1,16 +1,17 @@
+version: '3.8'
+
 services:
-  pillow-desk:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
+  app:
+    image: repo.strolch.li/pillow-desk:latest
+    container_name: pillow-desk
+    hostname: app
     ports:
-      - "8080:8080"
-    user: "${UID:-1000}:${GID:-1000}"
-    volumes:
-      - ./runtime:/pillow-desk-runtime
+      - 127.0.0.1:8085:8080
     environment:
-      - STROLCH_ENVIRONMENT=dev
-      - STROLCH_RUNTIME_PATH=/pillow-desk-runtime
+      - TZ=Europe/Zurich
+      - STROLCH_ENV=test
+      - STROLCH_PATH=/strolch
+    volumes:
+      - ./strolch:/strolch
+      - ./logs:/usr/local/tomcat/logs
+    restart: unless-stopped

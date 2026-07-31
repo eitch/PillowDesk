@@ -63,11 +63,27 @@ To run PillowDesk using Docker, follow these steps:
     ```
 2.  Start the application using Docker Compose:
     ```bash
-    docker compose up --build
+    docker compose -f docker-compose-dev.yml up --build
     ```
 3.  The application will be available at `http://localhost:8080`.
 
 The Docker configuration uses the `runtime` directory for configuration and data. Any changes made to the `runtime` directory on your host will be reflected in the container.
+
+## Push to docker repository
+
+Basic commands would be:
+```bash
+DOCKER_TAG="pillow-desk:latest"
+TAG_PATH="${REGISTRY}/docker/${DOCKER_TAG}"
+docker image build --load --pull -f Dockerfile --tag "${DOCKER_TAG}" .
+docker tag "${DOCKER_TAG}" "${TAG_PATH}"
+docker push "${TAG_PATH}"
+```
+
+But the following script will build and push the image to the specified repository and clean up the local images afterwards:
+```bash
+./build-docker-image.sh -p -c -r repo.strolch.li
+```
 
 ## 📄 License
 

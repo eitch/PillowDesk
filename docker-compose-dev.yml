@@ -1,0 +1,16 @@
+services:
+  pillow-desk:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    ports:
+      - "8080:8080"
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./runtime:/pillow-desk-runtime
+    environment:
+      - STROLCH_ENVIRONMENT=dev
+      - STROLCH_RUNTIME_PATH=/pillow-desk-runtime
