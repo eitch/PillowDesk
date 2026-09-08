@@ -4,7 +4,7 @@
         <Firstname>Admin</Firstname>
         <Lastname>Admin</Lastname>
         <State>ENABLED</State>
-        <Locale>en_CH</Locale>
+        <locale>de-CH</locale>
         <Roles>
             <Role>Administrator</Role>
         </Roles>
@@ -13,7 +13,7 @@
         <Firstname>Strolch Agent</Firstname>
         <Lastname>System User</Lastname>
         <State>SYSTEM</State>
-        <Locale>en_CH</Locale>
+        <locale>de-CH</locale>
         <Roles>
             <Role>agent</Role>
         </Roles>
