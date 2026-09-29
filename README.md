@@ -103,9 +103,6 @@ Copy the following files from the `runtime` directory to the `runtime` directory
 - `data`
 - `temp`
 
-Generate random values for `secretKey` and `secretSalt` in the following file:
-- runtime/config/PrivilegeConfig.xml
-
 Then, start the application using Docker Compose:
 ```bash
 docker compose up -d
